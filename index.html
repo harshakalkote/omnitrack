@@ -651,6 +651,37 @@
             border-radius: 9999px;
             transition: width 0.3s ease;
         }
+
+
+        .analytics-log-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            max-width: 520px;
+        }
+
+        .analytics-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.18rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+            line-height: 1.35;
+        }
+
+        .analytics-pill.completed {
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .analytics-pill.missed {
+            color: #fb7185;
+            background: rgba(244, 63, 94, 0.10);
+            border-color: rgba(244, 63, 94, 0.22);
+        }
     </style>
 </head>
 <body>
@@ -896,6 +927,31 @@
                 </div>
                 <div id="heatmap-container" style="overflow-x: auto; padding-bottom: 0.5rem;">
                     <!-- Rendered by JS -->
+                </div>
+            </div>
+
+            <!-- Daily completed / missed breakdown -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
+                        <span>Last 30 Days: Completed vs Missed by Date</span>
+                    </div>
+                </div>
+                <div class="data-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Completion</th>
+                                <th>Completed Habits</th>
+                                <th>Missed Habits</th>
+                            </tr>
+                        </thead>
+                        <tbody id="daily-completion-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1325,8 +1381,14 @@
            UTILITY FUNCTIONS
            ========================================================================= */
         function getTodayDateStr() {
-            // Using user local today's date 2026-07-19
-            return '2026-07-19';
+            // Always use the visitor's real local calendar date.
+            // Avoid toISOString() because it converts to UTC and can shift the date
+            // for users in time zones such as Asia/Kolkata.
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
 
         function formatDateReadable(dateStr) {
@@ -1399,10 +1461,11 @@
                 weightLogs = JSON.parse(storedWeights);
             } else {
                 // Initial weight if empty
+                const today = getTodayDateStr();
                 weightLogs = [
-                    { date: '2026-06-20', weight: profile.startWeight, notes: 'Initial starting weight' },
-                    { date: '2026-07-05', weight: 76.2, notes: 'Consistent exercise' },
-                    { date: '2026-07-19', weight: 74.4, notes: 'Feeling great!' }
+                    { date: addDaysToDateStr(today, -29), weight: profile.startWeight, notes: 'Initial starting weight' },
+                    { date: addDaysToDateStr(today, -14), weight: 76.2, notes: 'Consistent exercise' },
+                    { date: today, weight: 74.4, notes: 'Feeling great!' }
                 ];
                 saveToStorage();
             }
@@ -2017,6 +2080,24 @@
             return streak;
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[ch]));
+        }
+
+        function getHabitLogDisplayValue(habit, dateStr) {
+            const value = logs[dateStr] && logs[dateStr][habit.id];
+            if (value === undefined || value === null || value === '') return '';
+            if (habit.type === 'check') return 'Done';
+            if (habit.type === 'number') return `${value} ${habit.unit || ''}`.trim();
+            return String(value);
+        }
+
         function calculateBestStreak(habit) {
             // Scan all historical logs up to today
             const allDates = Object.keys(logs).sort();
@@ -2127,6 +2208,8 @@
             }
             heatmapContainer.appendChild(grid);
 
+            renderDailyCompletionTable(todayStr);
+
             // Populate Table
             const tbody = document.getElementById('habits-analytics-tbody');
             tbody.innerHTML = '';
@@ -2169,6 +2252,54 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function renderDailyCompletionTable(todayStr) {
+            const tbody = document.getElementById('daily-completion-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const activeDailyHabits = habits.filter(h => h.active && h.frequency === 'daily');
+            for (let i = 0; i < 30; i++) {
+                const dateStr = addDaysToDateStr(todayStr, -i);
+                const completed = [];
+                const missed = [];
+
+                activeDailyHabits.forEach(h => {
+                    const displayVal = getHabitLogDisplayValue(h, dateStr);
+                    if (isHabitCompletedOnDate(h, dateStr)) {
+                        completed.push(`${h.name}${displayVal && displayVal !== 'Done' ? ` (${displayVal})` : ''}`);
+                    } else {
+                        missed.push(h.name);
+                    }
+                });
+
+                const total = activeDailyHabits.length;
+                const pct = total > 0 ? Math.round((completed.length / total) * 100) : 0;
+                const completedHtml = completed.length
+                    ? completed.map(name => `<span class="analytics-pill completed">✓ ${escapeHtml(name)}</span>`).join('')
+                    : '<span style="color: var(--text-muted);">No habits completed</span>';
+                const missedHtml = missed.length
+                    ? missed.map(name => `<span class="analytics-pill missed">✕ ${escapeHtml(name)}</span>`).join('')
+                    : '<span style="color: #34d399; font-weight: 700;">Nothing missed</span>';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${formatDateReadable(dateStr)}</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 130px;">
+                            <span style="font-weight: 800; width: 42px; color: ${pct === 100 ? '#34d399' : pct >= 50 ? '#fbbf24' : '#fb7185'};">${pct}%</span>
+                            <div class="progress-track" style="margin: 0; flex: 1;">
+                                <div class="progress-fill" style="width: ${pct}%; background: ${pct === 100 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#f43f5e'};"></div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">${completed.length}/${total} completed</div>
+                    </td>
+                    <td><div class="analytics-log-list">${completedHtml}</div></td>
+                    <td><div class="analytics-log-list">${missedHtml}</div></td>
+                `;
+                tbody.appendChild(tr);
+            }
         }
 
         /* =========================================================================

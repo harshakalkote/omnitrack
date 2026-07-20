@@ -1,47 +1,54 @@
-const CACHE_NAME = 'omnitrack-v1';
+const CACHE_NAME = 'omnitrack-v2-20260720';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json'
 ];
 
-// Install Event - Cache files
+// Install Event - cache the current app shell and activate immediately.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[Service Worker] Caching app shell');
-        return cache.addAll(ASSETS);
-      })
+      .then(cache => cache.addAll(ASSETS))
       .then(() => self.skipWaiting())
   );
 });
 
-// Activate Event - Clean up old caches
+// Activate Event - clean up old caches so production users receive fixes.
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            console.log('[Service Worker] Clearing old cache');
-            return caches.delete(cache);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then(cacheNames => Promise.all(
+      cacheNames.map(cache => cache !== CACHE_NAME ? caches.delete(cache) : undefined)
+    )).then(() => self.clients.claim())
   );
 });
 
-// Fetch Event - Serve from cache first, fall back to network
+// Fetch Event
+// HTML/navigation requests are network-first so production deployments are not stuck
+// on an old cached index.html. Static assets remain cache-first for offline use.
 self.addEventListener('fetch', event => {
+  const request = event.request;
+  const isNavigation = request.mode === 'navigate' ||
+    (request.headers.get('accept') || '').includes('text/html');
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(event.request);
-      })
+    caches.match(request).then(cached => cached || fetch(request).then(response => {
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+      return response;
+    }))
   );
 });
