@@ -6,6 +6,10 @@
     <title>OmniTrack - Weight & Life Habit Mastery</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#10b981">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --bg-main: #0f172a;
@@ -682,6 +686,165 @@
             background: rgba(244, 63, 94, 0.10);
             border-color: rgba(244, 63, 94, 0.22);
         }
+
+        /* ===== LOGIN & AUTH STYLES ===== */
+        .login-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .login-overlay.hidden { display: none; }
+
+        .login-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-logo {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            background-color: #ffffff;
+            color: #1f2937;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .google-btn:hover {
+            background-color: #f9fafb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .google-btn img, .google-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .login-skip {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 1.25rem;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+
+        .login-skip:hover { color: var(--text-secondary); }
+
+        /* User avatar in navbar */
+        .user-avatar-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-primary);
+            object-fit: cover;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 110%;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.5rem 0;
+            min-width: 180px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 200;
+        }
+
+        .user-dropdown.show { display: block; }
+
+        .user-dropdown-item {
+            padding: 0.6rem 1rem;
+            font-size: 0.88rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .user-dropdown-item:hover { background-color: var(--bg-card-hover); }
+
+        .user-dropdown-item.danger { color: #fb7185; }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-primary);
+            animation: pulse 2s infinite;
+        }
+
+        .sync-dot.offline { background-color: #f59e0b; animation: none; }
+        .sync-dot.synced { background-color: #10b981; animation: none; }
+        .sync-dot.error { background-color: #f43f5e; animation: none; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
@@ -707,8 +870,50 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
                 <span>Max Streak: 0d</span>
             </div>
+            <!-- Auth / Sync Area -->
+            <div class="sync-status" id="sync-indicator" style="margin-right: 0.5rem;" title="Cloud sync status">
+                <span class="sync-dot offline" id="sync-dot"></span>
+                <span id="sync-label" style="color: var(--text-secondary);">Offline</span>
+            </div>
+            <div class="user-avatar-area" id="user-avatar-area" onclick="toggleUserDropdown()">
+                <img class="user-avatar" id="user-avatar-img" src="" alt="User" style="display:none;">
+                <span id="login-nav-btn" class="btn btn-primary btn-sm" style="border-radius: 9999px;">Sign In</span>
+                <div class="user-dropdown" id="user-dropdown">
+                    <div class="user-dropdown-item" id="dropdown-user-info" style="border-bottom: 1px solid var(--border-color);">
+                        <span>Signed in</span>
+                    </div>
+                    <div class="user-dropdown-item danger" onclick="signOut()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sign Out
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
+
+    <!-- ================= LOGIN OVERLAY ================= -->
+    <div class="login-overlay" id="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">📊</div>
+            <div class="login-title">Welcome to OmniTrack</div>
+            <div class="login-subtitle">
+                Sign in to sync your weight logs, habits, and streaks across all your devices — phone, laptop, wherever you track.
+            </div>
+            <button class="google-btn" id="google-signin-btn" onclick="signInWithGoogle()">
+                <svg viewBox="0 0 24 24" width="22" height="22">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Sign in with Google
+            </button>
+            <button class="login-skip" onclick="skipLogin()">Continue without signing in (offline mode)</button>
+        </div>
+        <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); max-width: 420px; text-align: center; line-height: 1.5;">
+            Your data syncs securely to your personal Firebase account. Only you can access it with your Google login.
+        </div>
+    </div>
 
     <!-- Main App Container -->
     <main class="main-container">
@@ -1219,12 +1424,283 @@
 
     <script>
         /* =========================================================================
+           FIREBASE CONFIGURATION — REPLACE WITH YOUR OWN VALUES
+           =========================================================================
+           1. Go to https://console.firebase.google.com/
+           2. Create a project (or use existing)
+           3. Enable Authentication → Sign-in method → Google
+           4. Enable Cloud Firestore (in production mode or test mode)
+           5. Copy your Firebase config from Project Settings → General → Your apps → Web app
+           6. Replace the firebaseConfig object below with your actual values
+           ========================================================================= */
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        let firestoreAvailable = false;
+        let authAvailable = false;
+        let db = null;
+        let auth = null;
+
+        try {
+            if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                authAvailable = true;
+                firestoreAvailable = true;
+                // Enable offline persistence
+                db.enablePersistence({ synchronizeTabs: true }).catch(function(err) {
+                    if (err.code === 'failed-precondition') {
+                        console.warn('Firestore persistence: multiple tabs open');
+                    } else if (err.code === 'unimplemented') {
+                        console.warn('Firestore persistence: not supported by browser');
+                    }
+                });
+                console.log('Firebase initialized successfully');
+            } else {
+                console.log('Firebase config not set — running in offline-only mode');
+            }
+        } catch (e) {
+            console.warn('Firebase initialization failed:', e.message);
+        }
+
+        // Auth state
+        let currentUser = null;
+        let isFirstLoginAfterAuth = false;
+
+        /* =========================================================================
+           AUTH FUNCTIONS
+           ========================================================================= */
+        function signInWithGoogle() {
+            if (!authAvailable) {
+                alert('Firebase is not configured yet. Please set up your Firebase project and update the config in index.html.');
+                return;
+            }
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then(function(result) {
+                console.log('Signed in as:', result.user.displayName);
+            }).catch(function(error) {
+                console.error('Sign-in error:', error);
+                alert('Sign-in failed: ' + (error.message || 'Unknown error'));
+            });
+        }
+
+        function signOut() {
+            if (!authAvailable) return;
+            auth.signOut().then(function() {
+                console.log('Signed out');
+            }).catch(function(error) {
+                console.error('Sign-out error:', error);
+            });
+        }
+
+        function skipLogin() {
+            document.getElementById('login-overlay').classList.add('hidden');
+            updateAuthUI(null);
+            // Remember skip choice so user isn't prompted on refresh
+            localStorage.setItem(STORAGE_KEY_SKIP_LOGIN, 'true');
+        }
+
+        function toggleUserDropdown() {
+            if (!currentUser) {
+                document.getElementById('login-overlay').classList.remove('hidden');
+                return;
+            }
+            const dd = document.getElementById('user-dropdown');
+            dd.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dd = document.getElementById('user-dropdown');
+            const avatarArea = document.getElementById('user-avatar-area');
+            if (dd && avatarArea && !avatarArea.contains(e.target)) {
+                dd.classList.remove('show');
+            }
+        });
+
+        function updateAuthUI(user) {
+            currentUser = user;
+            const overlay = document.getElementById('login-overlay');
+            const loginBtn = document.getElementById('login-nav-btn');
+            const avatarImg = document.getElementById('user-avatar-img');
+            const dropdownInfo = document.getElementById('dropdown-user-info');
+            const syncDot = document.getElementById('sync-dot');
+            const syncLabel = document.getElementById('sync-label');
+
+            if (user) {
+                // User is signed in
+                if (overlay) overlay.classList.add('hidden');
+                loginBtn.style.display = 'none';
+                avatarImg.style.display = 'block';
+                avatarImg.src = user.photoURL || '';
+                avatarImg.title = user.displayName || user.email;
+                dropdownInfo.innerHTML = '<span>' + (user.displayName || user.email) + '</span>';
+                
+                // Update sync indicator
+                if (firestoreAvailable) {
+                    syncDot.className = 'sync-dot synced';
+                    syncLabel.textContent = 'Synced';
+                }
+            } else {
+                // User is signed out
+                loginBtn.style.display = 'inline-flex';
+                avatarImg.style.display = 'none';
+                dropdownInfo.innerHTML = '<span>Not signed in</span>';
+                syncDot.className = 'sync-dot offline';
+                syncLabel.textContent = 'Offline';
+            }
+        }
+
+        function updateSyncStatus(status) {
+            const syncDot = document.getElementById('sync-dot');
+            const syncLabel = document.getElementById('sync-label');
+            if (!syncDot || !syncLabel) return;
+            syncDot.className = 'sync-dot ' + status;
+            if (status === 'synced') syncLabel.textContent = 'Synced';
+            else if (status === 'offline') syncLabel.textContent = 'Offline';
+            else if (status === 'error') syncLabel.textContent = 'Sync Error';
+            else syncLabel.textContent = 'Syncing...';
+        }
+
+        /* =========================================================================
+           FIRESTORE SYNC FUNCTIONS
+           ========================================================================= */
+        function getUserDocRef() {
+            if (!currentUser || !firestoreAvailable) return null;
+            return db.collection('users').doc(currentUser.uid);
+        }
+
+        // Load all data from Firestore into app state
+        async function loadFromFirestore() {
+            const docRef = getUserDocRef();
+            if (!docRef) return false;
+            try {
+                updateSyncStatus('');
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.profile) profile = data.profile;
+                    if (data.habits) habits = data.habits;
+                    if (data.logs) logs = data.logs;
+                    if (data.weightLogs) weightLogs = data.weightLogs;
+                    // Also save to localStorage as cache
+                    persistToLocalStorage();
+                    updateSyncStatus('synced');
+                    return true;
+                } else {
+                    // First time — push local data to Firestore
+                    await pushToFirestore();
+                    updateSyncStatus('synced');
+                    return true;
+                }
+            } catch (e) {
+                console.error('Firestore load failed:', e);
+                updateSyncStatus('error');
+                return false;
+            }
+        }
+
+        // Push current app state to Firestore
+        async function pushToFirestore() {
+            const docRef = getUserDocRef();
+            if (!docRef) return;
+            try {
+                updateSyncStatus('');
+                await docRef.set({
+                    profile: profile,
+                    habits: habits,
+                    logs: logs,
+                    weightLogs: weightLogs,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                updateSyncStatus('synced');
+            } catch (e) {
+                console.error('Firestore push failed:', e);
+                updateSyncStatus('error');
+            }
+        }
+
+        // Throttled push — prevents rapid consecutive pushes
+        let pushTimeout = null;
+        function schedulePushToFirestore() {
+            if (!currentUser || !firestoreAvailable) return;
+            if (pushTimeout) clearTimeout(pushTimeout);
+            pushTimeout = setTimeout(function() {
+                pushToFirestore();
+                pushTimeout = null;
+            }, 2000); // Debounce: wait 2s after last change before pushing
+        }
+
+        // Save to localStorage only (used as cache when logged in, or primary when offline)
+        function persistToLocalStorage() {
+            localStorage.setItem(STORAGE_KEY_HABITS, JSON.stringify(habits));
+            localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(logs));
+            localStorage.setItem(STORAGE_KEY_WEIGHTS, JSON.stringify(weightLogs));
+            localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
+        }
+
+        /* =========================================================================
+           AUTH STATE LISTENER
+           ========================================================================= */
+        if (authAvailable) {
+            auth.onAuthStateChanged(async function(user) {
+                if (user) {
+                    updateAuthUI(user);
+                    const loaded = await loadFromFirestore();
+                    if (loaded) {
+                        // Data loaded from cloud — refresh the UI
+                        weightLogs.sort((a, b) => a.date.localeCompare(b.date));
+                        updateUnitSpans();
+                        renderAll();
+                    }
+                } else {
+                    updateAuthUI(null);
+                    // Show login overlay (unless user previously skipped)
+                    var skipped = localStorage.getItem(STORAGE_KEY_SKIP_LOGIN);
+                    var overlayEl2 = document.getElementById('login-overlay');
+                    if (overlayEl2 && !skipped) overlayEl2.classList.remove('hidden');
+                    if (overlayEl2 && skipped) overlayEl2.classList.add('hidden');
+                    // When signed out, reload from localStorage
+                    const storedProfile = localStorage.getItem(STORAGE_KEY_PROFILE);
+                    profile = storedProfile ? JSON.parse(storedProfile) : { ...DEFAULT_PROFILE };
+                    const storedHabits = localStorage.getItem(STORAGE_KEY_HABITS);
+                    habits = storedHabits ? JSON.parse(storedHabits) : JSON.parse(JSON.stringify(DEFAULT_HABITS));
+                    const storedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
+                    logs = storedLogs ? JSON.parse(storedLogs) : {};
+                    const storedWeights = localStorage.getItem(STORAGE_KEY_WEIGHTS);
+                    weightLogs = storedWeights ? JSON.parse(storedWeights) : [];
+                    if (weightLogs.length === 0) {
+                        const today = getTodayDateStr();
+                        weightLogs = [
+                            { date: addDaysToDateStr(today, -29), weight: profile.startWeight, notes: 'Initial starting weight' },
+                            { date: addDaysToDateStr(today, -14), weight: 76.2, notes: 'Consistent exercise' },
+                            { date: today, weight: 74.4, notes: 'Feeling great!' }
+                        ];
+                        persistToLocalStorage();
+                    }
+                    weightLogs.sort((a, b) => a.date.localeCompare(b.date));
+                    updateUnitSpans();
+                    renderAll();
+                }
+            });
+        }
+
+        /* =========================================================================
            STATE MANAGEMENT & DEFAULT INITIALIZATION
            ========================================================================= */
         const STORAGE_KEY_HABITS = 'omnitrack_habits_v1';
         const STORAGE_KEY_LOGS = 'omnitrack_logs_v1';
         const STORAGE_KEY_WEIGHTS = 'omnitrack_weights_v1';
         const STORAGE_KEY_PROFILE = 'omnitrack_profile_v1';
+        const STORAGE_KEY_SKIP_LOGIN = 'omnitrack_skip_login';
 
         // Pre-populated habits matching user request exact terms and goals
         const DEFAULT_HABITS = [
@@ -1443,46 +1919,62 @@
            DATA INITIALIZATION & LOCAL STORAGE
            ========================================================================= */
         function initApp() {
-            // Load Profile
+            // Load from localStorage first (instant — works offline)
             const storedProfile = localStorage.getItem(STORAGE_KEY_PROFILE);
             profile = storedProfile ? JSON.parse(storedProfile) : { ...DEFAULT_PROFILE };
 
-            // Load Habits
             const storedHabits = localStorage.getItem(STORAGE_KEY_HABITS);
             habits = storedHabits ? JSON.parse(storedHabits) : JSON.parse(JSON.stringify(DEFAULT_HABITS));
 
-            // Load Logs
             const storedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
             logs = storedLogs ? JSON.parse(storedLogs) : {};
 
-            // Load Weight Logs
             const storedWeights = localStorage.getItem(STORAGE_KEY_WEIGHTS);
             if (storedWeights) {
                 weightLogs = JSON.parse(storedWeights);
             } else {
-                // Initial weight if empty
                 const today = getTodayDateStr();
                 weightLogs = [
                     { date: addDaysToDateStr(today, -29), weight: profile.startWeight, notes: 'Initial starting weight' },
                     { date: addDaysToDateStr(today, -14), weight: 76.2, notes: 'Consistent exercise' },
                     { date: today, weight: 74.4, notes: 'Feeling great!' }
                 ];
-                saveToStorage();
+                persistToLocalStorage();
             }
 
-            // Sort weight logs chronologically
             weightLogs.sort((a, b) => a.date.localeCompare(b.date));
-
-            // Apply settings to UI
             updateUnitSpans();
             renderAll();
+
+            // If Firebase is configured, auth listener handles cloud sync.
+            // If not configured, show login overlay (unless user previously skipped).
+            if (!authAvailable) {
+                var skippedBefore = localStorage.getItem(STORAGE_KEY_SKIP_LOGIN);
+                var overlayEl = document.getElementById('login-overlay');
+                if (overlayEl && !skippedBefore) {
+                    overlayEl.classList.remove('hidden');
+                    var subtitleEl = overlayEl.querySelector('.login-subtitle');
+                    if (subtitleEl) {
+                        subtitleEl.innerHTML = 'Cloud sync is ready! Open <code style="background:#334155;padding:2px 6px;border-radius:4px;">index.html</code>, find <code style="background:#334155;padding:2px 6px;border-radius:4px;">firebaseConfig</code> near line 680, and paste your Firebase project values. Then redeploy.';
+                    }
+                    var googleBtnEl = document.getElementById('google-signin-btn');
+                    if (googleBtnEl) {
+                        googleBtnEl.textContent = 'Sign in with Google';
+                        googleBtnEl.style.opacity = '0.5';
+                        googleBtnEl.style.pointerEvents = 'none';
+                        googleBtnEl.title = 'Set up your Firebase project first, then redeploy';
+                    }
+                } else if (overlayEl && skippedBefore) {
+                    overlayEl.classList.add('hidden');
+                }
+            }
         }
 
         function saveToStorage() {
-            localStorage.setItem(STORAGE_KEY_HABITS, JSON.stringify(habits));
-            localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(logs));
-            localStorage.setItem(STORAGE_KEY_WEIGHTS, JSON.stringify(weightLogs));
-            localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
+            persistToLocalStorage();
+            if (currentUser && firestoreAvailable) {
+                schedulePushToFirestore();
+            }
             updateNavStats();
         }
 
