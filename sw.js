@@ -1,4 +1,4 @@
-const CACHE_NAME = 'omnitrack-v8-20260806';
+const CACHE_NAME = 'omnitrack-v10-20260806';
 const ASSETS = [
   './',
   './index.html',
