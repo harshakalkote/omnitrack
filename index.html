@@ -616,14 +616,6 @@
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
         }
 
-        /* SVG Heatmap Grid */
-        .heatmap-grid {
-            display: grid;
-            grid-template-columns: repeat(12, minmax(16px, 1fr));
-            gap: 4px;
-            margin-top: 1rem;
-        }
-
         .analytics-filter-bar {
             display: grid;
             grid-template-columns: minmax(220px, 1.4fr) repeat(2, minmax(150px, 0.8fr)) auto;
@@ -683,6 +675,63 @@
             box-shadow: 0 3px 8px rgba(16, 185, 129, 0.25);
         }
 
+        .share-habit-options {
+            display: grid;
+            gap: 0.5rem;
+            max-height: 260px;
+            overflow-y: auto;
+            padding: 0.25rem;
+        }
+
+        .share-habit-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+            padding: 0.7rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-input);
+            cursor: pointer;
+        }
+
+        .share-habit-option input { margin-top: 0.2rem; accent-color: var(--accent-primary); }
+        .share-habit-option:hover { border-color: var(--accent-secondary); }
+
+        .shared-with-me-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .shared-access-card {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-secondary);
+            border-radius: var(--radius-lg);
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .read-only-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 0.9rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            border-radius: var(--radius-md);
+            color: #93c5fd;
+            background: rgba(59, 130, 246, 0.10);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .sharing-empty {
+            padding: 1.25rem;
+            text-align: center;
+            color: var(--text-secondary);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+        }
+
         @media (max-width: 900px) {
             .analytics-filter-bar { grid-template-columns: 1fr 1fr; }
         }
@@ -691,27 +740,6 @@
             .analytics-filter-bar { grid-template-columns: 1fr; }
             .analytics-filter-actions .btn { flex: 1; }
             .weekday-picker { grid-template-columns: repeat(4, 1fr); }
-        }
-
-        .heatmap-col {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .heatmap-cell {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 3px;
-            background-color: var(--bg-input);
-            cursor: pointer;
-            position: relative;
-            transition: transform 0.1s;
-        }
-
-        .heatmap-cell:hover {
-            transform: scale(1.2);
-            z-index: 10;
         }
 
         /* Tooltip */
@@ -848,19 +876,6 @@
             height: 22px;
         }
 
-        .login-skip {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-top: 1.25rem;
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-
-        .login-skip:hover { color: var(--text-secondary); }
-
         /* User avatar in navbar */
         .user-avatar-area {
             display: flex;
@@ -985,7 +1000,7 @@
             <div class="login-logo">📊</div>
             <div class="login-title">Welcome to OmniTrack</div>
             <div class="login-subtitle">
-                Sign in to sync your weight logs, habits, and streaks across all your devices — phone, laptop, wherever you track.
+                Sign in with your own Google account. Every family member gets a private habit space that is separate from everyone else.
             </div>
             <button class="google-btn" id="google-signin-btn" onclick="signInWithGoogle()">
                 <svg viewBox="0 0 24 24" width="22" height="22">
@@ -996,10 +1011,9 @@
                 </svg>
                 Sign in with Google
             </button>
-            <button class="login-skip" onclick="skipLogin()">Continue without signing in (offline mode)</button>
         </div>
         <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); max-width: 420px; text-align: center; line-height: 1.5;">
-            Your data syncs securely to your personal Firebase account. Only you can access it with your Google login.
+            Sign-in is required. Habit data is stored under the signed-in account and cached separately for that account on this device.
         </div>
     </div>
 
@@ -1023,6 +1037,10 @@
             <button class="tab-btn" onclick="switchTab('manage-habits')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 Modify Habits Anytime
+            </button>
+            <button class="tab-btn" onclick="switchTab('sharing')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
+                Sharing
             </button>
             <button class="tab-btn" onclick="switchTab('settings')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1228,25 +1246,6 @@
                 </div>
             </div>
 
-            <!-- Consistency Heatmap Grid -->
-            <!-- <div class="card" style="margin-bottom: 1.5rem;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        <span id="analytics-heatmap-title">Consistency Heatmap</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--text-secondary);">
-                        <span>Less</span>
-                        <div style="width: 12px; height: 12px; background: #0f172a; border-radius: 2px;"></div>
-                        <div style="width: 12px; height: 12px; background: rgba(16, 185, 129, 0.25); border-radius: 2px;"></div>
-                        <div style="width: 12px; height: 12px; background: rgba(16, 185, 129, 0.6); border-radius: 2px;"></div>
-                        <div style="width: 12px; height: 12px; background: #10b981; border-radius: 2px;"></div>
-                        <span>More</span>
-                    </div>
-                </div>
-                <div id="heatmap-container" style="overflow-x: auto; padding-bottom: 0.5rem;"></div>
-            </div> -->
-
             <!-- Weekly roll-up -->
             <div class="card" style="margin-bottom: 1.5rem;">
                 <div class="card-header">
@@ -1352,7 +1351,114 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: SETTINGS & DATA ================= -->
+        <!-- ================= TAB 5: PRIVATE HABIT SHARING ================= -->
+        <div id="tab-sharing" class="tab-content">
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header" style="align-items: flex-start;">
+                    <div>
+                        <div class="card-title" style="font-size: 1.3rem;">Private Habit Sharing</div>
+                        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.35rem; line-height: 1.5;">
+                            Share only selected habits with a specific Google email. Recipients get read-only history, notes, streaks, and analytics. Your other habits, profile, and weight data remain private.
+                        </p>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                        <button class="btn btn-secondary" onclick="loadSharingData()">Refresh</button>
+                        <button class="btn btn-primary" onclick="openHabitShareModal()">+ Share Habits</button>
+                    </div>
+                </div>
+                <div class="read-only-banner">🔒 Recipients cannot edit your habits or check-ins. You can change or revoke access at any time.</div>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: 1.5rem; align-items: start;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Shared by Me</div>
+                    </div>
+                    <div class="data-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Recipient</th>
+                                    <th>Shared Habits</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="outgoing-shares-tbody">
+                                <tr><td colspan="3" style="color:var(--text-secondary);">Open this tab to load sharing.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Shared with Me</div>
+                    </div>
+                    <div id="incoming-shares-list" class="shared-with-me-list">
+                        <div class="sharing-empty">No shared habits loaded yet.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="shared-habit-detail" style="display:none;">
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title" id="shared-detail-title">Shared Habit Analytics</div>
+                            <div id="shared-detail-subtitle" style="color:var(--text-secondary);font-size:0.85rem;margin-top:0.25rem;"></div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="closeSharedHabitDetail()">Close</button>
+                    </div>
+                    <div class="read-only-banner">👁 Read-only view — only the habits selected by the owner are included.</div>
+                    <div class="analytics-filter-bar">
+                        <div class="form-group">
+                            <label class="form-label">Shared habit</label>
+                            <select id="shared-view-habit" class="form-control" onchange="renderSelectedSharedHabit()"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Start date</label>
+                            <input type="date" id="shared-view-start" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End date</label>
+                            <input type="date" id="shared-view-end" class="form-control">
+                        </div>
+                        <div class="analytics-filter-actions">
+                            <button class="btn btn-primary" onclick="applySharedViewFilters()">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-4" style="margin-bottom:1.5rem;">
+                    <div class="kpi-card"><div class="kpi-label">Completion Rate</div><div class="kpi-value" id="shared-kpi-rate">0%</div><div class="kpi-sub">Required check-ins achieved</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Successful Check-ins</div><div class="kpi-value" id="shared-kpi-checkins">0</div><div class="kpi-sub">Selected date range</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Shared Notes</div><div class="kpi-value" id="shared-kpi-notes">0</div><div class="kpi-sub">Details recorded by owner</div></div>
+                    <div class="kpi-card"><div class="kpi-label">Active Streaks</div><div class="kpi-value" id="shared-kpi-streaks">0</div><div class="kpi-sub">Read-only progress</div></div>
+                </div>
+
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <div class="card-header"><div class="card-title">Weekly Summary</div></div>
+                    <div class="data-table-wrapper">
+                        <table>
+                            <thead><tr><th>Week</th><th>Target</th><th>Successful</th><th>Goals Met</th><th>Rate</th></tr></thead>
+                            <tbody id="shared-weekly-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Shared Inputs, Notes & History</div></div>
+                    <div class="data-table-wrapper">
+                        <table>
+                            <thead><tr><th>Date</th><th>Completion</th><th>Completed</th><th>Missing / Below Target</th></tr></thead>
+                            <tbody id="shared-daily-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 6: SETTINGS & DATA ================= -->
         <div id="tab-settings" class="tab-content">
             <div class="grid-2">
                 <!-- Profile & Goal Settings -->
@@ -1396,7 +1502,7 @@
                         <div class="card-title">Data Backup, Export & Sample Data</div>
                     </div>
                     <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
-                        Your data is safely stored locally in your browser's memory (`localStorage`). You can export full backups anytime, load realistic 30-day sample data to preview all analytical charts, or import backups across devices.
+                        Your data syncs to your private Firebase account and uses a separate local cache for your Google user ID. You can export backups, load sample data, or import a backup into your own account.
                     </p>
 
                     <div style="display: flex; flex-direction: column; gap: 0.85rem;">
@@ -1562,6 +1668,33 @@
         </div>
     </div>
 
+    <!-- ================= MODAL: SHARE SELECTED HABITS ================= -->
+    <div class="modal-overlay" id="habit-share-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="habit-share-modal-title" style="font-size:1.25rem;font-weight:700;">Share Selected Habits</h3>
+                <button class="btn btn-secondary btn-sm" onclick="closeHabitShareModal()">✕</button>
+            </div>
+            <form onsubmit="saveHabitShare(event)">
+                <input type="hidden" id="habit-share-id">
+                <div class="form-group">
+                    <label class="form-label">Recipient's Google email *</label>
+                    <input type="email" id="habit-share-email" class="form-control" placeholder="family.member@gmail.com" required>
+                    <div style="font-size:0.76rem;color:var(--text-secondary);margin-top:0.35rem;">The recipient must sign in to OmniTrack using this exact Google email.</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Choose habits to share *</label>
+                    <div id="habit-share-options" class="share-habit-options"></div>
+                </div>
+                <div class="read-only-banner">Only the selected habits, their check-ins, custom notes, schedules, and habit analytics are copied into this read-only share. Weight and profile data are never included.</div>
+                <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:1.25rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeHabitShareModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="habit-share-save-btn">Save Share</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Tooltip element -->
     <div id="tooltip" class="tooltip"></div>
 
@@ -1617,7 +1750,6 @@
 
         // Auth state
         let currentUser = null;
-        let isFirstLoginAfterAuth = false;
 
         /* =========================================================================
            AUTH FUNCTIONS
@@ -1636,20 +1768,19 @@
             });
         }
 
-        function signOut() {
+        async function signOut() {
             if (!authAvailable) return;
-            auth.signOut().then(function() {
+            try {
+                if (pushTimeout) {
+                    clearTimeout(pushTimeout);
+                    pushTimeout = null;
+                }
+                if (currentUser) await pushToFirestore();
+                await auth.signOut();
                 console.log('Signed out');
-            }).catch(function(error) {
+            } catch (error) {
                 console.error('Sign-out error:', error);
-            });
-        }
-
-        function skipLogin() {
-            document.getElementById('login-overlay').classList.add('hidden');
-            updateAuthUI(null);
-            // Remember skip choice so user isn't prompted on refresh
-            localStorage.setItem(STORAGE_KEY_SKIP_LOGIN, 'true');
+            }
         }
 
         function toggleUserDropdown() {
@@ -1694,7 +1825,8 @@
                     syncLabel.textContent = 'Synced';
                 }
             } else {
-                // User is signed out
+                // Sign-in is required; never expose another account's cached view.
+                if (overlay) overlay.classList.remove('hidden');
                 loginBtn.style.display = 'inline-flex';
                 avatarImg.style.display = 'none';
                 dropdownInfo.innerHTML = '<span>Not signed in</span>';
@@ -1722,7 +1854,7 @@
             return db.collection('users').doc(currentUser.uid);
         }
 
-        // Load all data from Firestore into app state
+        // Load the signed-in user's data from their private Firestore document.
         async function loadFromFirestore() {
             const docRef = getUserDocRef();
             if (!docRef) return false;
@@ -1731,21 +1863,18 @@
                 const doc = await docRef.get();
                 if (doc.exists) {
                     const data = doc.data();
-                    if (data.profile) profile = data.profile;
-                    if (data.habits) habits = normalizeHabits(data.habits);
-                    if (data.logs) logs = data.logs;
-                    if (data.habitNotes) habitNotes = data.habitNotes;
-                    if (data.weightLogs) weightLogs = data.weightLogs;
-                    // Also save to localStorage as cache
+                    profile = data.profile ? data.profile : { ...DEFAULT_PROFILE };
+                    habits = normalizeHabits(Array.isArray(data.habits) ? data.habits : []);
+                    logs = data.logs || {};
+                    habitNotes = data.habitNotes || {};
+                    weightLogs = Array.isArray(data.weightLogs) ? data.weightLogs : [];
                     persistToLocalStorage();
-                    updateSyncStatus('synced');
-                    return true;
                 } else {
-                    // First time — push local data to Firestore
+                    // A new Google account starts with an empty habit list.
                     await pushToFirestore();
-                    updateSyncStatus('synced');
-                    return true;
                 }
+                updateSyncStatus('synced');
+                return true;
             } catch (e) {
                 console.error('Firestore load failed:', e);
                 updateSyncStatus('error');
@@ -1753,7 +1882,6 @@
             }
         }
 
-        // Push current app state to Firestore
         async function pushToFirestore() {
             const docRef = getUserDocRef();
             if (!docRef) return;
@@ -1767,6 +1895,7 @@
                     weightLogs: weightLogs,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
+                await syncOutgoingHabitShares();
                 updateSyncStatus('synced');
             } catch (e) {
                 console.error('Firestore push failed:', e);
@@ -1774,7 +1903,6 @@
             }
         }
 
-        // Throttled push — prevents rapid consecutive pushes
         let pushTimeout = null;
         function schedulePushToFirestore() {
             if (!currentUser || !firestoreAvailable) return;
@@ -1782,60 +1910,127 @@
             pushTimeout = setTimeout(function() {
                 pushToFirestore();
                 pushTimeout = null;
-            }, 2000); // Debounce: wait 2s after last change before pushing
+            }, 2000);
         }
 
-        // Save to localStorage only (used as cache when logged in, or primary when offline)
-        function persistToLocalStorage() {
-            localStorage.setItem(STORAGE_KEY_HABITS, JSON.stringify(habits));
-            localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(logs));
-            localStorage.setItem(STORAGE_KEY_HABIT_NOTES, JSON.stringify(habitNotes));
-            localStorage.setItem(STORAGE_KEY_WEIGHTS, JSON.stringify(weightLogs));
-            localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
+        function getScopedStorageKey(baseKey, uid = currentUser && currentUser.uid) {
+            return uid ? `${baseKey}:${uid}` : null;
+        }
+
+        function safeReadLocalJSON(key, fallback) {
+            if (!key) return fallback;
+            try {
+                const value = localStorage.getItem(key);
+                return value === null ? fallback : JSON.parse(value);
+            } catch (e) {
+                console.warn('Ignoring invalid local cache entry:', key);
+                return fallback;
+            }
+        }
+
+        function resetUserState(includeDefaultHabits = false) {
+            profile = { ...DEFAULT_PROFILE };
+            habits = includeDefaultHabits ? normalizeHabits(JSON.parse(JSON.stringify(DEFAULT_HABITS))) : [];
+            logs = {};
+            habitNotes = {};
+            weightLogs = [];
+            currentDateStr = getTodayDateStr();
+            analyticsStartDateStr = '';
+            analyticsEndDateStr = '';
+            analyticsHabitId = 'all';
+            outgoingHabitShares = [];
+            incomingHabitShares = [];
+            selectedIncomingShareId = '';
+            sharedViewStartDateStr = '';
+            sharedViewEndDateStr = '';
+            sharedViewHabitId = 'all';
+        }
+
+        function loadUserDataFromLocalStorage(uid) {
+            const keys = [
+                STORAGE_KEY_PROFILE,
+                STORAGE_KEY_HABITS,
+                STORAGE_KEY_LOGS,
+                STORAGE_KEY_HABIT_NOTES,
+                STORAGE_KEY_WEIGHTS
+            ];
+            const hasScopedData = keys.some(key => localStorage.getItem(getScopedStorageKey(key, uid)) !== null);
+            if (!hasScopedData) return false;
+
+            profile = safeReadLocalJSON(getScopedStorageKey(STORAGE_KEY_PROFILE, uid), { ...DEFAULT_PROFILE });
+            habits = normalizeHabits(safeReadLocalJSON(getScopedStorageKey(STORAGE_KEY_HABITS, uid), []));
+            logs = safeReadLocalJSON(getScopedStorageKey(STORAGE_KEY_LOGS, uid), {});
+            habitNotes = safeReadLocalJSON(getScopedStorageKey(STORAGE_KEY_HABIT_NOTES, uid), {});
+            weightLogs = safeReadLocalJSON(getScopedStorageKey(STORAGE_KEY_WEIGHTS, uid), []);
+            return true;
+        }
+
+        // Move data made by earlier app versions into the first account that signs in.
+        // Legacy keys are then deleted so another account on the same browser cannot see them.
+        function migrateLegacyLocalData(uid) {
+            if (localStorage.getItem(STORAGE_KEY_LEGACY_MIGRATION)) return false;
+            const legacyKeys = [
+                STORAGE_KEY_PROFILE,
+                STORAGE_KEY_HABITS,
+                STORAGE_KEY_LOGS,
+                STORAGE_KEY_HABIT_NOTES,
+                STORAGE_KEY_WEIGHTS
+            ];
+            const hasLegacyData = legacyKeys.some(key => localStorage.getItem(key) !== null);
+            if (!hasLegacyData) return false;
+
+            profile = safeReadLocalJSON(STORAGE_KEY_PROFILE, { ...DEFAULT_PROFILE });
+            habits = normalizeHabits(safeReadLocalJSON(STORAGE_KEY_HABITS, []));
+            logs = safeReadLocalJSON(STORAGE_KEY_LOGS, {});
+            habitNotes = safeReadLocalJSON(STORAGE_KEY_HABIT_NOTES, {});
+            weightLogs = safeReadLocalJSON(STORAGE_KEY_WEIGHTS, []);
+            persistToLocalStorage(uid);
+            legacyKeys.forEach(key => localStorage.removeItem(key));
+            localStorage.setItem(STORAGE_KEY_LEGACY_MIGRATION, uid);
+            return true;
+        }
+
+        function persistToLocalStorage(uid = currentUser && currentUser.uid) {
+            if (!uid) return;
+            localStorage.setItem(getScopedStorageKey(STORAGE_KEY_HABITS, uid), JSON.stringify(habits));
+            localStorage.setItem(getScopedStorageKey(STORAGE_KEY_LOGS, uid), JSON.stringify(logs));
+            localStorage.setItem(getScopedStorageKey(STORAGE_KEY_HABIT_NOTES, uid), JSON.stringify(habitNotes));
+            localStorage.setItem(getScopedStorageKey(STORAGE_KEY_WEIGHTS, uid), JSON.stringify(weightLogs));
+            localStorage.setItem(getScopedStorageKey(STORAGE_KEY_PROFILE, uid), JSON.stringify(profile));
         }
 
         /* =========================================================================
-           AUTH STATE LISTENER
+           AUTH STATE LISTENER — EACH GOOGLE UID GETS ISOLATED DATA
            ========================================================================= */
         if (authAvailable) {
             auth.onAuthStateChanged(async function(user) {
+                if (pushTimeout) {
+                    clearTimeout(pushTimeout);
+                    pushTimeout = null;
+                }
+
                 if (user) {
                     updateAuthUI(user);
-                    const loaded = await loadFromFirestore();
-                    if (loaded) {
-                        // Data loaded from cloud — refresh the UI
-                        weightLogs.sort((a, b) => a.date.localeCompare(b.date));
-                        updateUnitSpans();
-                        renderAll();
-                    }
+                    const hasLocalData = loadUserDataFromLocalStorage(user.uid) || migrateLegacyLocalData(user.uid);
+                    if (!hasLocalData) resetUserState(false);
+
+                    // Show this account's own cache while Firestore loads.
+                    weightLogs.sort((a, b) => a.date.localeCompare(b.date));
+                    updateUnitSpans();
+                    renderAll();
+
+                    await loadFromFirestore();
+                    // Recalculate analytics dates after cloud history arrives. Without this,
+                    // the empty pre-login 12-week range could hide older imported records.
+                    analyticsStartDateStr = '';
+                    analyticsEndDateStr = '';
+                    analyticsHabitId = 'all';
+                    weightLogs.sort((a, b) => a.date.localeCompare(b.date));
+                    updateUnitSpans();
+                    renderAll();
                 } else {
                     updateAuthUI(null);
-                    // Show login overlay (unless user previously skipped)
-                    var skipped = localStorage.getItem(STORAGE_KEY_SKIP_LOGIN);
-                    var overlayEl2 = document.getElementById('login-overlay');
-                    if (overlayEl2 && !skipped) overlayEl2.classList.remove('hidden');
-                    if (overlayEl2 && skipped) overlayEl2.classList.add('hidden');
-                    // When signed out, reload from localStorage
-                    const storedProfile = localStorage.getItem(STORAGE_KEY_PROFILE);
-                    profile = storedProfile ? JSON.parse(storedProfile) : { ...DEFAULT_PROFILE };
-                    const storedHabits = localStorage.getItem(STORAGE_KEY_HABITS);
-                    habits = normalizeHabits(storedHabits ? JSON.parse(storedHabits) : JSON.parse(JSON.stringify(DEFAULT_HABITS)));
-                    const storedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
-                    logs = storedLogs ? JSON.parse(storedLogs) : {};
-                    const storedHabitNotes = localStorage.getItem(STORAGE_KEY_HABIT_NOTES);
-                    habitNotes = storedHabitNotes ? JSON.parse(storedHabitNotes) : {};
-                    const storedWeights = localStorage.getItem(STORAGE_KEY_WEIGHTS);
-                    weightLogs = storedWeights ? JSON.parse(storedWeights) : [];
-                    if (weightLogs.length === 0) {
-                        const today = getTodayDateStr();
-                        weightLogs = [
-                            { date: addDaysToDateStr(today, -29), weight: profile.startWeight, notes: 'Initial starting weight' },
-                            { date: addDaysToDateStr(today, -14), weight: 76.2, notes: 'Consistent exercise' },
-                            { date: today, weight: 74.4, notes: 'Feeling great!' }
-                        ];
-                        persistToLocalStorage();
-                    }
-                    weightLogs.sort((a, b) => a.date.localeCompare(b.date));
+                    resetUserState(false);
                     updateUnitSpans();
                     renderAll();
                 }
@@ -1850,7 +2045,7 @@
         const STORAGE_KEY_HABIT_NOTES = 'omnitrack_habit_notes_v1';
         const STORAGE_KEY_WEIGHTS = 'omnitrack_weights_v1';
         const STORAGE_KEY_PROFILE = 'omnitrack_profile_v1';
-        const STORAGE_KEY_SKIP_LOGIN = 'omnitrack_skip_login';
+        const STORAGE_KEY_LEGACY_MIGRATION = 'omnitrack_legacy_migrated_to_uid_v1';
 
         // Pre-populated habits matching user request exact terms and goals
         const DEFAULT_HABITS = [
@@ -2006,6 +2201,12 @@
         let analyticsStartDateStr = '';
         let analyticsEndDateStr = '';
         let analyticsHabitId = 'all';
+        let outgoingHabitShares = [];
+        let incomingHabitShares = [];
+        let selectedIncomingShareId = '';
+        let sharedViewStartDateStr = '';
+        let sharedViewEndDateStr = '';
+        let sharedViewHabitId = 'all';
 
         /* =========================================================================
            UTILITY FUNCTIONS
@@ -2172,56 +2373,25 @@
            DATA INITIALIZATION & LOCAL STORAGE
            ========================================================================= */
         function initApp() {
-            // Load from localStorage first (instant — works offline)
-            const storedProfile = localStorage.getItem(STORAGE_KEY_PROFILE);
-            profile = storedProfile ? JSON.parse(storedProfile) : { ...DEFAULT_PROFILE };
-
-            const storedHabits = localStorage.getItem(STORAGE_KEY_HABITS);
-            habits = normalizeHabits(storedHabits ? JSON.parse(storedHabits) : JSON.parse(JSON.stringify(DEFAULT_HABITS)));
-
-            const storedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
-            logs = storedLogs ? JSON.parse(storedLogs) : {};
-
-            const storedHabitNotes = localStorage.getItem(STORAGE_KEY_HABIT_NOTES);
-            habitNotes = storedHabitNotes ? JSON.parse(storedHabitNotes) : {};
-
-            const storedWeights = localStorage.getItem(STORAGE_KEY_WEIGHTS);
-            if (storedWeights) {
-                weightLogs = JSON.parse(storedWeights);
-            } else {
-                const today = getTodayDateStr();
-                weightLogs = [
-                    { date: addDaysToDateStr(today, -29), weight: profile.startWeight, notes: 'Initial starting weight' },
-                    { date: addDaysToDateStr(today, -14), weight: 76.2, notes: 'Consistent exercise' },
-                    { date: today, weight: 74.4, notes: 'Feeling great!' }
-                ];
-                persistToLocalStorage();
-            }
-
-            weightLogs.sort((a, b) => a.date.localeCompare(b.date));
+            // Keep the app empty and covered until Firebase confirms the signed-in user.
+            resetUserState(false);
             updateUnitSpans();
             renderAll();
 
-            // If Firebase is configured, auth listener handles cloud sync.
-            // If not configured, show login overlay (unless user previously skipped).
+            const overlayEl = document.getElementById('login-overlay');
+            if (overlayEl) overlayEl.classList.remove('hidden');
+
             if (!authAvailable) {
-                var skippedBefore = localStorage.getItem(STORAGE_KEY_SKIP_LOGIN);
-                var overlayEl = document.getElementById('login-overlay');
-                if (overlayEl && !skippedBefore) {
-                    overlayEl.classList.remove('hidden');
-                    var subtitleEl = overlayEl.querySelector('.login-subtitle');
-                    if (subtitleEl) {
-                        subtitleEl.innerHTML = 'Cloud sync is ready! Open <code style="background:#334155;padding:2px 6px;border-radius:4px;">index.html</code>, find <code style="background:#334155;padding:2px 6px;border-radius:4px;">firebaseConfig</code> near line 680, and paste your Firebase project values. Then redeploy.';
-                    }
-                    var googleBtnEl = document.getElementById('google-signin-btn');
-                    if (googleBtnEl) {
-                        googleBtnEl.textContent = 'Sign in with Google';
-                        googleBtnEl.style.opacity = '0.5';
-                        googleBtnEl.style.pointerEvents = 'none';
-                        googleBtnEl.title = 'Set up your Firebase project first, then redeploy';
-                    }
-                } else if (overlayEl && skippedBefore) {
-                    overlayEl.classList.add('hidden');
+                const subtitleEl = overlayEl && overlayEl.querySelector('.login-subtitle');
+                if (subtitleEl) {
+                    subtitleEl.innerHTML = 'Google sign-in is required. Configure Firebase Authentication and Firestore, then redeploy this site.';
+                }
+                const googleBtnEl = document.getElementById('google-signin-btn');
+                if (googleBtnEl) {
+                    googleBtnEl.textContent = 'Google sign-in is not configured';
+                    googleBtnEl.style.opacity = '0.5';
+                    googleBtnEl.style.pointerEvents = 'none';
+                    googleBtnEl.title = 'Configure Firebase before sharing this website';
                 }
             }
         }
@@ -2264,6 +2434,8 @@
                 renderHabitsAnalyticsTab();
             } else if (tabId === 'manage-habits') {
                 renderManageHabitsTab();
+            } else if (tabId === 'sharing') {
+                loadSharingData();
             } else if (tabId === 'dashboard') {
                 renderDashboard();
             }
@@ -2998,10 +3170,27 @@
             return activeHabits.filter(h => h.id === analyticsHabitId);
         }
 
-        function ensureAnalyticsControls() {
+        function getHabitHistoryBounds() {
             const todayStr = getTodayDateStr();
-            if (!analyticsStartDateStr) analyticsStartDateStr = addDaysToDateStr(todayStr, -83);
-            if (!analyticsEndDateStr) analyticsEndDateStr = todayStr;
+            const historicalDates = [...new Set([...Object.keys(logs || {}), ...Object.keys(habitNotes || {})])]
+                .filter(dateStr => /^\d{4}-\d{2}-\d{2}$/.test(dateStr))
+                .sort();
+            return {
+                start: historicalDates.length ? historicalDates[0] : addDaysToDateStr(todayStr, -83),
+                end: historicalDates.length && historicalDates[historicalDates.length - 1] > todayStr
+                    ? historicalDates[historicalDates.length - 1]
+                    : todayStr
+            };
+        }
+
+        function ensureAnalyticsControls() {
+            const bounds = getHabitHistoryBounds();
+            const hasValidStart = /^\d{4}-\d{2}-\d{2}$/.test(analyticsStartDateStr || '');
+            const hasValidEnd = /^\d{4}-\d{2}-\d{2}$/.test(analyticsEndDateStr || '');
+            if (!hasValidStart || !hasValidEnd || analyticsStartDateStr > analyticsEndDateStr) {
+                analyticsStartDateStr = bounds.start;
+                analyticsEndDateStr = bounds.end;
+            }
 
             const select = document.getElementById('analytics-habit-select');
             const activeHabits = habits.filter(h => h.active);
@@ -3103,69 +3292,19 @@
                     : 'Best habit: --';
             }
 
-            renderAnalyticsHeatmap(analyticsHabits, selectedHabit);
             renderWeeklyAnalyticsTable(analyticsHabits);
             renderDailyCompletionTable(analyticsHabits, analyticsStartDateStr, analyticsEndDateStr);
             renderHabitAnalyticsTable(analyticsHabits, analyticsStartDateStr, analyticsEndDateStr);
-        }
-
-        function renderAnalyticsHeatmap(analyticsHabits, selectedHabit) {
-            const container = document.getElementById('heatmap-container');
-            container.innerHTML = '';
-            document.getElementById('analytics-heatmap-title').textContent = selectedHabit
-                ? `${selectedHabit.name} Consistency Heatmap`
-                : 'All Habits Consistency Heatmap';
-
-            const dates = getDateRange(analyticsStartDateStr, analyticsEndDateStr);
-            if (dates.length === 0 || analyticsHabits.length === 0) {
-                container.innerHTML = '<div style="color:var(--text-secondary);padding:1rem 0;">No active habits or dates to display.</div>';
-                return;
-            }
-
-            const weekCount = Math.ceil(dates.length / 7);
-            const grid = document.createElement('div');
-            grid.className = 'heatmap-grid';
-            grid.style.gridTemplateColumns = `repeat(${weekCount}, minmax(16px, 1fr))`;
-            grid.style.minWidth = `${Math.max(280, weekCount * 22)}px`;
-
-            for (let columnIndex = 0; columnIndex < weekCount; columnIndex++) {
-                const col = document.createElement('div');
-                col.className = 'heatmap-col';
-                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-                    const dateIndex = (columnIndex * 7) + dayIndex;
-                    if (dateIndex >= dates.length) break;
-                    const cellDate = dates[dateIndex];
-                    const cell = document.createElement('div');
-                    cell.className = 'heatmap-cell';
-                    const scheduledHabits = analyticsHabits.filter(h => isHabitScheduledOnDate(h, cellDate));
-                    const completed = scheduledHabits.filter(h => isHabitCompletedOnDate(h, cellDate)).length;
-                    const pct = scheduledHabits.length ? completed / scheduledHabits.length : 0;
-                    cell.style.backgroundColor = scheduledHabits.length === 0 ? '#1e293b'
-                        : pct === 0 ? '#0f172a'
-                        : pct <= 0.35 ? 'rgba(16, 185, 129, 0.25)'
-                        : pct <= 0.75 ? 'rgba(16, 185, 129, 0.6)'
-                        : '#10b981';
-                    cell.addEventListener('mouseover', e => {
-                        const inputText = scheduledHabits.length
-                            ? scheduledHabits.map(h => {
-                                const note = getHabitEntryNote(h.id, cellDate);
-                                return `${escapeHtml(h.name)}: ${escapeHtml(getHabitLogDisplayValue(h, cellDate, true))}${note ? `<br>↳ Note: ${escapeHtml(note)}` : ''}`;
-                            }).join('<br>')
-                            : 'No selected habits scheduled';
-                        showTooltip(e, `<strong>${formatDateReadable(cellDate)}</strong><br>${completed}/${scheduledHabits.length} scheduled habits completed<br>${inputText}`);
-                    });
-                    cell.addEventListener('mouseout', hideTooltip);
-                    col.appendChild(cell);
-                }
-                grid.appendChild(col);
-            }
-            container.appendChild(grid);
         }
 
         function renderWeeklyAnalyticsTable(analyticsHabits) {
             const tbody = document.getElementById('weekly-analytics-tbody');
             tbody.innerHTML = '';
             const segments = getAnalyticsWeekSegments(analyticsStartDateStr, analyticsEndDateStr).reverse();
+            if (!segments.length) {
+                tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-secondary);text-align:center;">Choose a valid analytics date range to see weekly data.</td></tr>';
+                return;
+            }
 
             segments.forEach(segment => {
                 let expected = 0;
@@ -3204,6 +3343,10 @@
             const tbody = document.getElementById('daily-completion-tbody');
             tbody.innerHTML = '';
             const dates = getDateRange(startDateStr, endDateStr).reverse();
+            if (!dates.length) {
+                tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-secondary);text-align:center;">No dates are available for this range.</td></tr>';
+                return;
+            }
 
             dates.forEach(dateStr => {
                 const scheduledHabits = analyticsHabits.filter(habit => isHabitScheduledOnDate(habit, dateStr));
@@ -3250,6 +3393,10 @@
         function renderHabitAnalyticsTable(analyticsHabits, startDateStr, endDateStr) {
             const tbody = document.getElementById('habits-analytics-tbody');
             tbody.innerHTML = '';
+            if (!analyticsHabits.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-secondary);text-align:center;">No active habits are available for analytics.</td></tr>';
+                return;
+            }
 
             analyticsHabits.forEach(habit => {
                 const currentStreak = calculateCurrentStreak(habit);
@@ -3284,6 +3431,416 @@
                     <td><strong>${escapeHtml(inputAverage)}</strong><div style="font-size:0.75rem;color:var(--text-secondary);">zero included for missing scheduled dates</div></td>
                     <td style="font-weight:700;">${stats.successful} / ${stats.expected}<div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">${noteCount} note${noteCount === 1 ? '' : 's'}</div></td>
                     <td><button class="btn btn-secondary btn-sm" onclick="selectHabitAnalytics('${habit.id}')">View habit</button></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /* =========================================================================
+           PRIVATE READ-ONLY HABIT SHARING
+           ========================================================================= */
+        function normalizeSharingEmail(email) {
+            return String(email || '').trim().toLowerCase();
+        }
+
+        function filterSharedRecordMap(source, habitIdSet) {
+            const filtered = {};
+            Object.keys(source || {}).forEach(dateStr => {
+                const day = {};
+                Object.keys(source[dateStr] || {}).forEach(habitId => {
+                    if (habitIdSet.has(habitId)) day[habitId] = source[dateStr][habitId];
+                });
+                if (Object.keys(day).length) filtered[dateStr] = day;
+            });
+            return filtered;
+        }
+
+        function buildHabitSharePayload(requestedHabitIds, recipientEmail) {
+            const requestedSet = new Set(Array.isArray(requestedHabitIds) ? requestedHabitIds : []);
+            const selectedHabits = habits.filter(habit => requestedSet.has(habit.id));
+            const validHabitIds = selectedHabits.map(habit => habit.id);
+            const validSet = new Set(validHabitIds);
+            return {
+                ownerUid: currentUser.uid,
+                ownerName: currentUser.displayName || profile.username || currentUser.email || 'OmniTrack user',
+                ownerEmail: normalizeSharingEmail(currentUser.email),
+                recipientEmail: normalizeSharingEmail(recipientEmail),
+                habitIds: validHabitIds,
+                habits: JSON.parse(JSON.stringify(selectedHabits)),
+                logs: filterSharedRecordMap(logs, validSet),
+                habitNotes: filterSharedRecordMap(habitNotes, validSet),
+                shareVersion: 1,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+        }
+
+        async function syncOutgoingHabitShares() {
+            if (!currentUser || !firestoreAvailable) return;
+            try {
+                const snapshot = await db.collection('habitShares').where('ownerUid', '==', currentUser.uid).get();
+                await Promise.all(snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const payload = buildHabitSharePayload(data.habitIds || [], data.recipientEmail || '');
+                    return doc.ref.set(payload, { merge: true });
+                }));
+            } catch (error) {
+                // The owner's private data save should still succeed if sharing rules are not deployed yet.
+                console.warn('Could not refresh shared habit snapshots:', error.message);
+            }
+        }
+
+        function formatShareUpdatedAt(value) {
+            if (!value) return 'Recently';
+            try {
+                const date = typeof value.toDate === 'function' ? value.toDate() : new Date(value);
+                return date.toLocaleString();
+            } catch (e) {
+                return 'Recently';
+            }
+        }
+
+        async function loadSharingData() {
+            if (!currentUser || !firestoreAvailable) return;
+            const outgoingBody = document.getElementById('outgoing-shares-tbody');
+            const incomingList = document.getElementById('incoming-shares-list');
+            if (outgoingBody) outgoingBody.innerHTML = '<tr><td colspan="3" style="color:var(--text-secondary);">Loading…</td></tr>';
+            if (incomingList) incomingList.innerHTML = '<div class="sharing-empty">Loading shared habits…</div>';
+
+            try {
+                const email = normalizeSharingEmail(currentUser.email);
+                const queries = [
+                    db.collection('habitShares').where('ownerUid', '==', currentUser.uid).get(),
+                    db.collection('habitShares').where('recipientEmail', '==', email).get()
+                ];
+                const [outgoingSnapshot, incomingSnapshot] = await Promise.all(queries);
+                outgoingHabitShares = outgoingSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                incomingHabitShares = incomingSnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(share => share.ownerUid !== currentUser.uid);
+                renderSharingLists();
+
+                if (selectedIncomingShareId) {
+                    const stillShared = incomingHabitShares.some(share => share.id === selectedIncomingShareId);
+                    if (stillShared) renderSelectedSharedHabit();
+                    else closeSharedHabitDetail();
+                }
+            } catch (error) {
+                console.error('Sharing data load failed:', error);
+                if (outgoingBody) outgoingBody.innerHTML = '<tr><td colspan="3" style="color:#fb7185;">Could not load sharing. Publish the updated Firestore rules.</td></tr>';
+                if (incomingList) incomingList.innerHTML = '<div class="sharing-empty" style="color:#fb7185;">Could not load shared habits. Check Firestore rules.</div>';
+            }
+        }
+
+        function renderSharingLists() {
+            const outgoingBody = document.getElementById('outgoing-shares-tbody');
+            const incomingList = document.getElementById('incoming-shares-list');
+            if (!outgoingBody || !incomingList) return;
+
+            if (!outgoingHabitShares.length) {
+                outgoingBody.innerHTML = '<tr><td colspan="3"><div class="sharing-empty">You have not shared any habits.</div></td></tr>';
+            } else {
+                outgoingBody.innerHTML = outgoingHabitShares.map(share => {
+                    const habitNames = (share.habits || []).map(h => h.name);
+                    return `
+                        <tr>
+                            <td><strong>${escapeHtml(share.recipientEmail)}</strong><div style="font-size:0.72rem;color:var(--text-secondary);margin-top:0.2rem;">Updated ${escapeHtml(formatShareUpdatedAt(share.updatedAt))}</div></td>
+                            <td>${habitNames.length ? habitNames.map(name => `<span class="analytics-pill completed">${escapeHtml(name)}</span>`).join(' ') : '<span style="color:var(--text-muted);">No habits</span>'}</td>
+                            <td style="text-align:right;white-space:nowrap;"><button class="btn btn-secondary btn-sm" onclick="openHabitShareModal('${share.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="revokeHabitShare('${share.id}')">Revoke</button></td>
+                        </tr>`;
+                }).join('');
+            }
+
+            if (!incomingHabitShares.length) {
+                incomingList.innerHTML = '<div class="sharing-empty">No one has shared habits with your Google email yet.</div>';
+            } else {
+                incomingList.innerHTML = incomingHabitShares.map(share => {
+                    const count = Array.isArray(share.habits) ? share.habits.length : 0;
+                    return `
+                        <div class="shared-access-card">
+                            <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;">
+                                <div><strong>${escapeHtml(share.ownerName || share.ownerEmail || 'Family member')}</strong><div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.25rem;">Shared ${count} habit${count === 1 ? '' : 's'} • Updated ${escapeHtml(formatShareUpdatedAt(share.updatedAt))}</div></div>
+                                <button class="btn btn-blue btn-sm" onclick="viewIncomingHabitShare('${share.id}')">View read-only</button>
+                            </div>
+                            <div class="analytics-log-list" style="margin-top:0.7rem;">${(share.habits || []).map(h => `<span class="analytics-pill completed">${escapeHtml(h.name)}</span>`).join('')}</div>
+                        </div>`;
+                }).join('');
+            }
+        }
+
+        function openHabitShareModal(shareId = '') {
+            if (!currentUser) return;
+            if (!habits.length) {
+                alert('Create at least one habit before sharing.');
+                return;
+            }
+            const existing = shareId ? outgoingHabitShares.find(share => share.id === shareId) : null;
+            const selectedIds = new Set(existing ? existing.habitIds || [] : []);
+            document.getElementById('habit-share-modal-title').textContent = existing ? 'Edit Habit Share' : 'Share Selected Habits';
+            document.getElementById('habit-share-id').value = existing ? existing.id : '';
+            document.getElementById('habit-share-email').value = existing ? existing.recipientEmail || '' : '';
+            document.getElementById('habit-share-options').innerHTML = habits.map(habit => `
+                <label class="share-habit-option">
+                    <input type="checkbox" value="${escapeHtml(habit.id)}" ${selectedIds.has(habit.id) ? 'checked' : ''}>
+                    <span><strong>${escapeHtml(habit.name)}</strong><span style="display:block;font-size:0.76rem;color:var(--text-secondary);margin-top:0.2rem;">${escapeHtml(getHabitFrequencyLabel(habit))} • ${escapeHtml(habit.category)}</span></span>
+                </label>`).join('');
+            document.getElementById('habit-share-modal').classList.add('active');
+        }
+
+        function closeHabitShareModal() {
+            document.getElementById('habit-share-modal').classList.remove('active');
+        }
+
+        async function saveHabitShare(event) {
+            event.preventDefault();
+            if (!currentUser || !firestoreAvailable) return;
+            const shareId = document.getElementById('habit-share-id').value;
+            const recipientEmail = normalizeSharingEmail(document.getElementById('habit-share-email').value);
+            const selectedHabitIds = Array.from(document.querySelectorAll('#habit-share-options input:checked')).map(input => input.value);
+
+            if (!recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
+                alert('Enter a valid Google email address.');
+                return;
+            }
+            if (recipientEmail === normalizeSharingEmail(currentUser.email)) {
+                alert('Choose another family member’s Google email, not your own.');
+                return;
+            }
+            if (!selectedHabitIds.length) {
+                alert('Select at least one habit to share.');
+                return;
+            }
+
+            const button = document.getElementById('habit-share-save-btn');
+            button.disabled = true;
+            button.textContent = 'Saving…';
+            try {
+                const payload = buildHabitSharePayload(selectedHabitIds, recipientEmail);
+                if (shareId) {
+                    await db.collection('habitShares').doc(shareId).set(payload, { merge: true });
+                } else {
+                    await db.collection('habitShares').add({
+                        ...payload,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                closeHabitShareModal();
+                await loadSharingData();
+            } catch (error) {
+                console.error('Could not save habit share:', error);
+                alert('Could not save sharing access. Make sure the updated Firestore rules are published.');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Save Share';
+            }
+        }
+
+        async function revokeHabitShare(shareId) {
+            if (!currentUser || !confirm('Revoke this person’s read-only access?')) return;
+            try {
+                await db.collection('habitShares').doc(shareId).delete();
+                if (selectedIncomingShareId === shareId) closeSharedHabitDetail();
+                await loadSharingData();
+            } catch (error) {
+                console.error('Could not revoke share:', error);
+                alert('Could not revoke sharing access.');
+            }
+        }
+
+        function getSelectedIncomingShare() {
+            return incomingHabitShares.find(share => share.id === selectedIncomingShareId) || null;
+        }
+
+        function viewIncomingHabitShare(shareId) {
+            const share = incomingHabitShares.find(item => item.id === shareId);
+            if (!share) return;
+            selectedIncomingShareId = shareId;
+            sharedViewHabitId = 'all';
+            sharedViewEndDateStr = getTodayDateStr();
+            sharedViewStartDateStr = addDaysToDateStr(sharedViewEndDateStr, -83);
+            const detail = document.getElementById('shared-habit-detail');
+            detail.style.display = 'block';
+            document.getElementById('shared-detail-title').textContent = `${share.ownerName || share.ownerEmail || 'Family member'} — Shared Habits`;
+            document.getElementById('shared-detail-subtitle').textContent = `Read-only access for ${currentUser.email} • Updated ${formatShareUpdatedAt(share.updatedAt)}`;
+            document.getElementById('shared-view-start').value = sharedViewStartDateStr;
+            document.getElementById('shared-view-end').value = sharedViewEndDateStr;
+            populateSharedHabitSelector(share);
+            renderSelectedSharedHabit();
+            detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function closeSharedHabitDetail() {
+            selectedIncomingShareId = '';
+            const detail = document.getElementById('shared-habit-detail');
+            if (detail) detail.style.display = 'none';
+        }
+
+        function populateSharedHabitSelector(share) {
+            const select = document.getElementById('shared-view-habit');
+            select.innerHTML = '<option value="all">All shared habits</option>' + (share.habits || []).map(habit =>
+                `<option value="${escapeHtml(habit.id)}">${escapeHtml(habit.name)} — ${escapeHtml(getHabitFrequencyLabel(habit))}</option>`
+            ).join('');
+            select.value = sharedViewHabitId;
+        }
+
+        function applySharedViewFilters() {
+            const start = document.getElementById('shared-view-start').value;
+            const end = document.getElementById('shared-view-end').value;
+            if (!start || !end || start > end) {
+                alert('Choose a valid start and end date.');
+                return;
+            }
+            sharedViewStartDateStr = start;
+            sharedViewEndDateStr = end;
+            sharedViewHabitId = document.getElementById('shared-view-habit').value || 'all';
+            renderSelectedSharedHabit();
+        }
+
+        function isSharedHabitCompletedOnDate(share, habit, dateStr) {
+            const value = share.logs && share.logs[dateStr] && share.logs[dateStr][habit.id];
+            if (value === undefined || value === null || value === '') return false;
+            if (habit.type === 'check') return value === true || value === 1 || value === 'true';
+            if (habit.type === 'text') return typeof value === 'string' && value.trim().length > 0;
+            if (habit.type === 'number') {
+                const numeric = parseFloat(value);
+                if (!Number.isFinite(numeric)) return false;
+                if (habit.condition === '<=') return numeric <= habit.target && numeric > 0;
+                if (habit.condition === '=') return numeric === habit.target;
+                return numeric >= habit.target;
+            }
+            return false;
+        }
+
+        function getSharedHabitCompletionCount(share, habit, startDateStr, endDateStr) {
+            return getDateRange(startDateStr, endDateStr).reduce((count, dateStr) => count + (
+                isHabitScheduledOnDate(habit, dateStr) && isSharedHabitCompletedOnDate(share, habit, dateStr) ? 1 : 0
+            ), 0);
+        }
+
+        function getSharedHabitNote(share, habitId, dateStr) {
+            const note = share.habitNotes && share.habitNotes[dateStr] && share.habitNotes[dateStr][habitId];
+            return typeof note === 'string' ? note : '';
+        }
+
+        function getSharedHabitDisplayValue(share, habit, dateStr) {
+            const hasValue = Boolean(share.logs && share.logs[dateStr] &&
+                share.logs[dateStr][habit.id] !== undefined && share.logs[dateStr][habit.id] !== null && share.logs[dateStr][habit.id] !== '');
+            if (!hasValue) return habit.type === 'number' ? `0 ${habit.unit || ''}`.trim() : '0';
+            const value = share.logs[dateStr][habit.id];
+            if (habit.type === 'check') return isSharedHabitCompletedOnDate(share, habit, dateStr) ? 'Done (1)' : '0';
+            if (habit.type === 'number') return `${parseFloat(value) || 0} ${habit.unit || ''}`.trim();
+            return String(value).trim() || '0';
+        }
+
+        function getSharedHabitStats(share, habit, startDateStr, endDateStr) {
+            let expected = 0;
+            let successful = 0;
+            let credited = 0;
+            getAnalyticsWeekSegments(startDateStr, endDateStr).forEach(segment => {
+                const segmentExpected = getExpectedCheckinsForSegment(habit, segment);
+                const segmentSuccessful = getSharedHabitCompletionCount(share, habit, segment.start, segment.end);
+                expected += segmentExpected;
+                successful += segmentSuccessful;
+                credited += Math.min(segmentSuccessful, segmentExpected);
+            });
+            return { expected, successful, credited, rate: expected ? Math.round((credited / expected) * 100) : 0 };
+        }
+
+        function calculateSharedCurrentStreak(share, habit) {
+            if (habit.frequency === 'weekly') {
+                let weekStart = getWeekStartDateStr(getTodayDateStr());
+                const target = getHabitWeeklyTarget(habit);
+                let completed = getSharedHabitCompletionCount(share, habit, weekStart, addDaysToDateStr(weekStart, 6));
+                if (completed < target) weekStart = addDaysToDateStr(weekStart, -7);
+                let streak = 0;
+                while (true) {
+                    completed = getSharedHabitCompletionCount(share, habit, weekStart, addDaysToDateStr(weekStart, 6));
+                    if (completed < target) break;
+                    streak++;
+                    weekStart = addDaysToDateStr(weekStart, -7);
+                }
+                return streak;
+            }
+            let dateStr = getTodayDateStr();
+            if (!isSharedHabitCompletedOnDate(share, habit, dateStr)) dateStr = addDaysToDateStr(dateStr, -1);
+            let streak = 0;
+            while (isSharedHabitCompletedOnDate(share, habit, dateStr)) {
+                streak++;
+                dateStr = addDaysToDateStr(dateStr, -1);
+            }
+            return streak;
+        }
+
+        function renderSelectedSharedHabit() {
+            const share = getSelectedIncomingShare();
+            if (!share) return;
+            const select = document.getElementById('shared-view-habit');
+            if (select) sharedViewHabitId = select.value || sharedViewHabitId;
+            const selectedHabits = (share.habits || []).filter(habit => sharedViewHabitId === 'all' || habit.id === sharedViewHabitId);
+
+            let expected = 0;
+            let successful = 0;
+            let credited = 0;
+            selectedHabits.forEach(habit => {
+                const stats = getSharedHabitStats(share, habit, sharedViewStartDateStr, sharedViewEndDateStr);
+                expected += stats.expected;
+                successful += stats.successful;
+                credited += stats.credited;
+            });
+            const noteCount = getDateRange(sharedViewStartDateStr, sharedViewEndDateStr).reduce((count, dateStr) =>
+                count + selectedHabits.filter(habit => getSharedHabitNote(share, habit.id, dateStr)).length, 0);
+            const activeStreaks = selectedHabits.filter(habit => calculateSharedCurrentStreak(share, habit) > 0).length;
+            const rate = expected ? Math.round((credited / expected) * 100) : 0;
+            document.getElementById('shared-kpi-rate').textContent = `${rate}%`;
+            document.getElementById('shared-kpi-checkins').textContent = successful;
+            document.getElementById('shared-kpi-notes').textContent = noteCount;
+            document.getElementById('shared-kpi-streaks').textContent = activeStreaks;
+            renderSharedWeeklyTable(share, selectedHabits);
+            renderSharedDailyTable(share, selectedHabits);
+        }
+
+        function renderSharedWeeklyTable(share, selectedHabits) {
+            const tbody = document.getElementById('shared-weekly-tbody');
+            tbody.innerHTML = '';
+            getAnalyticsWeekSegments(sharedViewStartDateStr, sharedViewEndDateStr).reverse().forEach(segment => {
+                let expected = 0;
+                let successful = 0;
+                let credited = 0;
+                let goalsMet = 0;
+                selectedHabits.forEach(habit => {
+                    const habitExpected = getExpectedCheckinsForSegment(habit, segment);
+                    const habitSuccessful = getSharedHabitCompletionCount(share, habit, segment.start, segment.end);
+                    expected += habitExpected;
+                    successful += habitSuccessful;
+                    credited += Math.min(habitSuccessful, habitExpected);
+                    if (habitExpected > 0 && habitSuccessful >= habitExpected) goalsMet++;
+                });
+                const rate = expected ? Math.round((credited / expected) * 100) : 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><strong>${formatDateReadable(segment.start)}</strong><div style="font-size:0.75rem;color:var(--text-secondary);">to ${formatDateReadable(segment.end)}${segment.partial ? ' • partial' : ''}</div></td><td>${expected}</td><td style="color:#34d399;font-weight:700;">${successful}</td><td>${goalsMet}/${selectedHabits.length}</td><td><strong>${rate}%</strong><div class="progress-track"><div class="progress-fill" style="width:${rate}%;background:#3b82f6;"></div></div></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSharedDailyTable(share, selectedHabits) {
+            const tbody = document.getElementById('shared-daily-tbody');
+            tbody.innerHTML = '';
+            getDateRange(sharedViewStartDateStr, sharedViewEndDateStr).reverse().forEach(dateStr => {
+                const scheduled = selectedHabits.filter(habit => isHabitScheduledOnDate(habit, dateStr));
+                const completed = [];
+                const incomplete = [];
+                scheduled.forEach(habit => {
+                    const value = getSharedHabitDisplayValue(share, habit, dateStr);
+                    const note = getSharedHabitNote(share, habit.id, dateStr);
+                    const label = `${habit.name} (${value})${note ? ` • Note: ${note}` : ''}`;
+                    if (isSharedHabitCompletedOnDate(share, habit, dateStr)) completed.push(label);
+                    else incomplete.push(label);
+                });
+                const pct = scheduled.length ? Math.round((completed.length / scheduled.length) * 100) : 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${formatDateReadable(dateStr)}</strong></td>
+                    <td>${scheduled.length ? `<strong>${pct}%</strong><div style="font-size:0.75rem;color:var(--text-secondary);">${completed.length}/${scheduled.length} scheduled</div>` : '<span style="color:var(--text-muted);">Not scheduled</span>'}</td>
+                    <td><div class="analytics-log-list">${completed.length ? completed.map(label => `<span class="analytics-pill completed">✓ ${escapeHtml(label)}</span>`).join('') : '<span style="color:var(--text-muted);">—</span>'}</div></td>
+                    <td><div class="analytics-log-list">${incomplete.length ? incomplete.map(label => `<span class="analytics-pill missed">0 ${escapeHtml(label)}</span>`).join('') : '<span style="color:var(--text-muted);">—</span>'}</div></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -3571,7 +4128,7 @@
         }
 
         function loadSampleData() {
-            if (!confirm('This will load 30 days of realistic sample weight logs and habit checks so you can preview all interactive charts, heatmaps, and streaks. Proceed?')) return;
+            if (!confirm('This will load 30 days of realistic sample weight logs and habit checks so you can preview all interactive charts, weekly summaries, and streaks. Proceed?')) return;
 
             const today = getTodayDateStr();
             // Generate 30 days of sample data
@@ -3705,13 +4262,12 @@
         }
 
         function resetToDefaults() {
-            if (confirm('Factory reset app? This will erase all custom logs and restore the original 10 default habits.')) {
-                localStorage.removeItem(STORAGE_KEY_HABITS);
-                localStorage.removeItem(STORAGE_KEY_LOGS);
-                localStorage.removeItem(STORAGE_KEY_HABIT_NOTES);
-                localStorage.removeItem(STORAGE_KEY_WEIGHTS);
-                localStorage.removeItem(STORAGE_KEY_PROFILE);
-                initApp();
+            if (!currentUser) return;
+            if (confirm('Factory reset your account? This erases only your logs and restores the original 10 default habits. Other family accounts are not affected.')) {
+                resetUserState(true);
+                saveToStorage();
+                updateUnitSpans();
+                renderAll();
             }
         }
 
@@ -3747,5 +4303,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a26ce7999d335917',t:'MTc4NjAwNzM4Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a26d83328f47343c',t:'MTc4NjAxMzc2MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
