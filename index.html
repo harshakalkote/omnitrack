@@ -453,6 +453,25 @@
             color: var(--text-primary);
         }
 
+        .habit-entry-note {
+            width: 100%;
+            min-height: 54px;
+            resize: vertical;
+            padding: 0.6rem 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.84rem;
+            line-height: 1.35;
+            color: var(--text-primary);
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+
+        .habit-entry-note:focus {
+            outline: none;
+            border-color: var(--accent-secondary);
+        }
+
         .streak-pill {
             display: flex;
             align-items: center;
@@ -600,9 +619,78 @@
         /* SVG Heatmap Grid */
         .heatmap-grid {
             display: grid;
-            grid-template-columns: repeat(12, 1fr);
+            grid-template-columns: repeat(12, minmax(16px, 1fr));
             gap: 4px;
             margin-top: 1rem;
+        }
+
+        .analytics-filter-bar {
+            display: grid;
+            grid-template-columns: minmax(220px, 1.4fr) repeat(2, minmax(150px, 0.8fr)) auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .analytics-filter-bar .form-group { margin-bottom: 0; }
+
+        .analytics-filter-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .analytics-context {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .weekday-picker {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(48px, 1fr));
+            gap: 0.4rem;
+        }
+
+        .weekday-option {
+            position: relative;
+        }
+
+        .weekday-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .weekday-option span {
+            display: block;
+            padding: 0.55rem 0.3rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .weekday-option input:checked + span {
+            color: #ffffff;
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        @media (max-width: 900px) {
+            .analytics-filter-bar { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            .analytics-filter-bar { grid-template-columns: 1fr; }
+            .analytics-filter-actions .btn { flex: 1; }
+            .weekday-picker { grid-template-columns: repeat(4, 1fr); }
         }
 
         .heatmap-col {
@@ -868,7 +956,7 @@
             </div>
             <div class="stat-badge amber" id="nav-best-streak">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-                <span>Max Streak: 0d</span>
+                <span>Max Streak: 0</span>
             </div>
             <!-- Auth / Sync Area -->
             <div class="sync-status" id="sync-indicator" style="margin-right: 0.5rem;" title="Cloud sync status">
@@ -1093,24 +1181,50 @@
             </div>
         </div>
 
-        <!-- ================= TAB 3: HABITS ANALYTICS & STREAKS ================= -->
+        <!-- ================= TAB 3: HABIT & WEEKLY ANALYTICS ================= -->
         <div id="tab-habits-analytics" class="tab-content">
+            <!-- Analytics filters apply to every chart and table below. -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="analytics-filter-bar">
+                    <div class="form-group">
+                        <label class="form-label">Habit</label>
+                        <select id="analytics-habit-select" class="form-control" onchange="applyAnalyticsFilters()">
+                            <option value="all">All active habits</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Start date</label>
+                        <input type="date" id="analytics-start-date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End date</label>
+                        <input type="date" id="analytics-end-date" class="form-control">
+                    </div>
+                    <div class="analytics-filter-actions">
+                        <button class="btn btn-primary" onclick="applyAnalyticsFilters()">Apply</button>
+                        <button class="btn btn-secondary btn-sm" onclick="setAnalyticsRange(28)">4 weeks</button>
+                        <button class="btn btn-secondary btn-sm" onclick="setAnalyticsRange(84)">12 weeks</button>
+                    </div>
+                </div>
+                <div class="analytics-context" id="analytics-context">Showing all active habits.</div>
+            </div>
+
             <!-- Summary stats -->
             <div class="grid-3" style="margin-bottom: 1.5rem;">
                 <div class="kpi-card">
-                    <div class="kpi-label">Weekly Completion Rate</div>
+                    <div class="kpi-label">Goal Completion Rate</div>
                     <div class="kpi-value" id="habits-weekly-rate">0%</div>
-                    <div class="kpi-sub">Last 7 days average</div>
+                    <div class="kpi-sub" id="habits-rate-sub">For the selected date range</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Active Streaks (> 3 days)</div>
+                    <div class="kpi-label">Current Streak</div>
                     <div class="kpi-value" id="habits-active-streaks">0</div>
                     <div class="kpi-sub" id="habits-best-habit-name">Best habit: --</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Total Habit Check-ins Logged</div>
+                    <div class="kpi-label">Successful Check-ins</div>
                     <div class="kpi-value" id="habits-total-checkins">0</div>
-                    <div class="kpi-sub">Across all categories</div>
+                    <div class="kpi-sub" id="habits-checkins-sub">Missing scheduled input is counted as zero</div>
                 </div>
             </div>
 
@@ -1119,7 +1233,7 @@
                 <div class="card-header">
                     <div class="card-title">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        <span>12-Week Consistency Heatmap</span>
+                        <span id="analytics-heatmap-title">Consistency Heatmap</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--text-secondary);">
                         <span>Less</span>
@@ -1130,17 +1244,36 @@
                         <span>More</span>
                     </div>
                 </div>
-                <div id="heatmap-container" style="overflow-x: auto; padding-bottom: 0.5rem;">
-                    <!-- Rendered by JS -->
+                <div id="heatmap-container" style="overflow-x: auto; padding-bottom: 0.5rem;"></div>
+            </div>
+
+            <!-- Weekly roll-up -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <div class="card-title">Weekly Goal Summary</div>
+                </div>
+                <div class="data-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Week</th>
+                                <th>Target Check-ins</th>
+                                <th>Successful Check-ins</th>
+                                <th>Goals Met</th>
+                                <th>Completion Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="weekly-analytics-tbody"></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Daily completed / missed breakdown -->
+            <!-- Date-level inputs. Empty input is displayed and calculated as zero. -->
             <div class="card" style="margin-bottom: 1.5rem;">
                 <div class="card-header">
                     <div class="card-title">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
-                        <span>Last 30 Days: Completed vs Missed by Date</span>
+                        <span>Inputs & Completion by Date</span>
                     </div>
                 </div>
                 <div class="data-table-wrapper">
@@ -1149,37 +1282,34 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Completion</th>
-                                <th>Completed Habits</th>
-                                <th>Missed Habits</th>
+                                <th>Goal Met / Completed</th>
+                                <th>Zero, Missing, or Below Target</th>
                             </tr>
                         </thead>
-                        <tbody id="daily-completion-tbody">
-                            <!-- Populated by JS -->
-                        </tbody>
+                        <tbody id="daily-completion-tbody"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Habit Breakdown & Streaks Table -->
+            <!-- Habit-level breakdown -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Habit Streaks & 30-Day Completion Breakdown</div>
+                    <div class="card-title">Habit-level Analytics</div>
                 </div>
                 <div class="data-table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>Habit Name & Category</th>
-                                <th>Frequency & Target</th>
-                                <th>Current Streak</th>
-                                <th>Best Streak</th>
-                                <th>30-Day Completion Rate</th>
-                                <th>Total Logged</th>
+                                <th>Frequency & Daily Target</th>
+                                <th>Current / Best Streak</th>
+                                <th>Selected-range Rate</th>
+                                <th>Input Average</th>
+                                <th>Successful / Expected</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="habits-analytics-tbody">
-                            <!-- Populated by JS -->
-                        </tbody>
+                        <tbody id="habits-analytics-tbody"></tbody>
                     </table>
                 </div>
             </div>
@@ -1192,7 +1322,7 @@
                     <div>
                         <div class="card-title" style="font-size: 1.3rem;">Modify Your Habits Anytime</div>
                         <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                            You are in total control. Add new habits, edit targets (like Sleep hours, LeetCode prep time, or Daughter stories), reorder them, or toggle between daily/weekly frequencies.
+                            You are in total control. Add habits, edit targets, reorder them, or choose exact weekdays such as Monday, Wednesday, and Friday.
                         </p>
                     </div>
                     <button class="btn btn-primary btn-lg" onclick="openHabitModal()">
@@ -1328,10 +1458,24 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Frequency</label>
-                        <select id="modal-habit-frequency" class="form-control">
-                            <option value="daily">Daily Habit</option>
-                            <option value="weekly">Weekly Goal</option>
+                        <select id="modal-habit-frequency" class="form-control" onchange="onHabitFrequencyChange(this.value)">
+                            <option value="daily">Every day</option>
+                            <option value="weekly">Custom times per week</option>
                         </select>
+                        <div id="modal-frequency-count-group" style="display: none; margin-top: 0.75rem;">
+                            <label class="form-label">Choose the weekdays when this habit should appear</label>
+                            <div class="weekday-picker" id="modal-weekday-picker">
+                                <label class="weekday-option"><input type="checkbox" value="1" onchange="onHabitWeekdayChange()"><span>Mon</span></label>
+                                <label class="weekday-option"><input type="checkbox" value="2" onchange="onHabitWeekdayChange()"><span>Tue</span></label>
+                                <label class="weekday-option"><input type="checkbox" value="3" onchange="onHabitWeekdayChange()"><span>Wed</span></label>
+                                <label class="weekday-option"><input type="checkbox" value="4" onchange="onHabitWeekdayChange()"><span>Thu</span></label>
+                                <label class="weekday-option"><input type="checkbox" value="5" onchange="onHabitWeekdayChange()"><span>Fri</span></label>
+                                <label class="weekday-option"><input type="checkbox" value="6" onchange="onHabitWeekdayChange()"><span>Sat</span></label>
+                                <label class="weekday-option"><input type="checkbox" value="0" onchange="onHabitWeekdayChange()"><span>Sun</span></label>
+                            </div>
+                            <input type="hidden" id="modal-habit-frequency-count" value="3">
+                            <div id="modal-frequency-summary" style="font-size: 0.78rem; color: var(--accent-primary); margin-top: 0.45rem; font-weight: 700;">3 times a week</div>
+                        </div>
                     </div>
                 </div>
 
@@ -1588,8 +1732,9 @@
                 if (doc.exists) {
                     const data = doc.data();
                     if (data.profile) profile = data.profile;
-                    if (data.habits) habits = data.habits;
+                    if (data.habits) habits = normalizeHabits(data.habits);
                     if (data.logs) logs = data.logs;
+                    if (data.habitNotes) habitNotes = data.habitNotes;
                     if (data.weightLogs) weightLogs = data.weightLogs;
                     // Also save to localStorage as cache
                     persistToLocalStorage();
@@ -1618,6 +1763,7 @@
                     profile: profile,
                     habits: habits,
                     logs: logs,
+                    habitNotes: habitNotes,
                     weightLogs: weightLogs,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
@@ -1643,6 +1789,7 @@
         function persistToLocalStorage() {
             localStorage.setItem(STORAGE_KEY_HABITS, JSON.stringify(habits));
             localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(logs));
+            localStorage.setItem(STORAGE_KEY_HABIT_NOTES, JSON.stringify(habitNotes));
             localStorage.setItem(STORAGE_KEY_WEIGHTS, JSON.stringify(weightLogs));
             localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
         }
@@ -1672,9 +1819,11 @@
                     const storedProfile = localStorage.getItem(STORAGE_KEY_PROFILE);
                     profile = storedProfile ? JSON.parse(storedProfile) : { ...DEFAULT_PROFILE };
                     const storedHabits = localStorage.getItem(STORAGE_KEY_HABITS);
-                    habits = storedHabits ? JSON.parse(storedHabits) : JSON.parse(JSON.stringify(DEFAULT_HABITS));
+                    habits = normalizeHabits(storedHabits ? JSON.parse(storedHabits) : JSON.parse(JSON.stringify(DEFAULT_HABITS)));
                     const storedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
                     logs = storedLogs ? JSON.parse(storedLogs) : {};
+                    const storedHabitNotes = localStorage.getItem(STORAGE_KEY_HABIT_NOTES);
+                    habitNotes = storedHabitNotes ? JSON.parse(storedHabitNotes) : {};
                     const storedWeights = localStorage.getItem(STORAGE_KEY_WEIGHTS);
                     weightLogs = storedWeights ? JSON.parse(storedWeights) : [];
                     if (weightLogs.length === 0) {
@@ -1698,6 +1847,7 @@
            ========================================================================= */
         const STORAGE_KEY_HABITS = 'omnitrack_habits_v1';
         const STORAGE_KEY_LOGS = 'omnitrack_logs_v1';
+        const STORAGE_KEY_HABIT_NOTES = 'omnitrack_habit_notes_v1';
         const STORAGE_KEY_WEIGHTS = 'omnitrack_weights_v1';
         const STORAGE_KEY_PROFILE = 'omnitrack_profile_v1';
         const STORAGE_KEY_SKIP_LOGIN = 'omnitrack_skip_login';
@@ -1847,11 +1997,15 @@
         // App state
         let habits = [];
         let logs = {}; // { 'YYYY-MM-DD': { habitId: value } }
+        let habitNotes = {}; // { 'YYYY-MM-DD': { habitId: 'entry note' } }
         let weightLogs = []; // [ { date: 'YYYY-MM-DD', weight: 70.2, notes: '' } ]
         let profile = {};
         let currentDateStr = getTodayDateStr();
         let currentFilterCategory = 'all';
         let selectedModalColor = '#10b981';
+        let analyticsStartDateStr = '';
+        let analyticsEndDateStr = '';
+        let analyticsHabitId = 'all';
 
         /* =========================================================================
            UTILITY FUNCTIONS
@@ -1897,6 +2051,105 @@
             return `${y}-${m}-${day}`;
         }
 
+        const WEEKDAY_SHORT_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        function getDefaultScheduleDays(count) {
+            const defaults = {
+                1: [1],
+                2: [1, 4],
+                3: [1, 3, 5],
+                4: [1, 2, 4, 6],
+                5: [1, 2, 3, 4, 5],
+                6: [1, 2, 3, 4, 5, 6],
+                7: [1, 2, 3, 4, 5, 6, 0]
+            };
+            const safeCount = Math.min(7, Math.max(1, parseInt(count, 10) || 1));
+            return [...defaults[safeCount]];
+        }
+
+        function sortScheduleDays(days) {
+            return [...days].sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
+        }
+
+        function normalizeHabit(habit) {
+            const normalized = { ...habit };
+            normalized.frequency = normalized.frequency === 'weekly' ? 'weekly' : 'daily';
+            const oldCount = Math.min(7, Math.max(1, parseInt(normalized.frequencyCount, 10) || 1));
+            const providedDays = Array.isArray(normalized.scheduleDays)
+                ? normalized.scheduleDays.map(Number).filter(day => Number.isInteger(day) && day >= 0 && day <= 6)
+                : [];
+            const uniqueDays = sortScheduleDays([...new Set(providedDays)]);
+
+            if (normalized.frequency === 'weekly') {
+                normalized.scheduleDays = uniqueDays.length ? uniqueDays : getDefaultScheduleDays(oldCount);
+                normalized.frequencyCount = normalized.scheduleDays.length;
+            } else {
+                normalized.scheduleDays = [1, 2, 3, 4, 5, 6, 0];
+                normalized.frequencyCount = 7;
+            }
+            return normalized;
+        }
+
+        function normalizeHabits(habitList) {
+            return Array.isArray(habitList) ? habitList.map(normalizeHabit) : [];
+        }
+
+        function getHabitScheduleDays(habit) {
+            if (habit.frequency !== 'weekly') return [1, 2, 3, 4, 5, 6, 0];
+            return normalizeHabit(habit).scheduleDays;
+        }
+
+        function getHabitWeeklyTarget(habit) {
+            return habit.frequency === 'weekly' ? getHabitScheduleDays(habit).length : 7;
+        }
+
+        function getDayOfWeek(dateStr) {
+            const parts = dateStr.split('-');
+            return new Date(parts[0], parts[1] - 1, parts[2]).getDay();
+        }
+
+        function isHabitScheduledOnDate(habit, dateStr) {
+            return habit.frequency !== 'weekly' || getHabitScheduleDays(habit).includes(getDayOfWeek(dateStr));
+        }
+
+        function getHabitFrequencyLabel(habit) {
+            if (habit.frequency !== 'weekly') return 'Every day';
+            const days = getHabitScheduleDays(habit);
+            const countLabel = days.length === 1 ? 'Once a week'
+                : days.length === 2 ? 'Twice a week'
+                : `${days.length} times a week`;
+            return `${countLabel} • ${days.map(day => WEEKDAY_SHORT_LABELS[day]).join(', ')}`;
+        }
+
+        function getDateRange(startDateStr, endDateStr) {
+            const dates = [];
+            if (!startDateStr || !endDateStr || startDateStr > endDateStr) return dates;
+            let cursor = startDateStr;
+            while (cursor <= endDateStr) {
+                dates.push(cursor);
+                cursor = addDaysToDateStr(cursor, 1);
+            }
+            return dates;
+        }
+
+        function getHabitCompletionCount(habit, startDateStr, endDateStr) {
+            return getDateRange(startDateStr, endDateStr)
+                .reduce((count, dateStr) => count + (
+                    isHabitScheduledOnDate(habit, dateStr) && isHabitCompletedOnDate(habit, dateStr) ? 1 : 0
+                ), 0);
+        }
+
+        function getHabitWeeklyProgress(habit, dateStr) {
+            const weekStart = getWeekStartDateStr(dateStr);
+            const weekEnd = addDaysToDateStr(weekStart, 6);
+            return {
+                completed: getHabitCompletionCount(habit, weekStart, weekEnd),
+                target: getHabitWeeklyTarget(habit),
+                weekStart: weekStart,
+                weekEnd: weekEnd
+            };
+        }
+
         function isHabitCompletedOnDate(habit, dateStr) {
             const logEntry = logs[dateStr] && logs[dateStr][habit.id];
             if (logEntry === undefined || logEntry === null || logEntry === '') return false;
@@ -1924,10 +2177,13 @@
             profile = storedProfile ? JSON.parse(storedProfile) : { ...DEFAULT_PROFILE };
 
             const storedHabits = localStorage.getItem(STORAGE_KEY_HABITS);
-            habits = storedHabits ? JSON.parse(storedHabits) : JSON.parse(JSON.stringify(DEFAULT_HABITS));
+            habits = normalizeHabits(storedHabits ? JSON.parse(storedHabits) : JSON.parse(JSON.stringify(DEFAULT_HABITS)));
 
             const storedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
             logs = storedLogs ? JSON.parse(storedLogs) : {};
+
+            const storedHabitNotes = localStorage.getItem(STORAGE_KEY_HABIT_NOTES);
+            habitNotes = storedHabitNotes ? JSON.parse(storedHabitNotes) : {};
 
             const storedWeights = localStorage.getItem(STORAGE_KEY_WEIGHTS);
             if (storedWeights) {
@@ -2059,13 +2315,15 @@
             } else if (currentFilterCategory !== 'all') {
                 activeHabits = activeHabits.filter(h => h.category === currentFilterCategory);
             }
+            // Custom-frequency habits appear only on their selected weekdays.
+            activeHabits = activeHabits.filter(h => isHabitScheduledOnDate(h, currentDateStr));
 
             // Render Habit Cards
             const grid = document.getElementById('dash-habits-grid');
             grid.innerHTML = '';
 
             let completedCount = 0;
-            const allDailyActive = habits.filter(h => h.active && h.frequency === 'daily');
+            const allDailyActive = habits.filter(h => h.active && isHabitScheduledOnDate(h, currentDateStr));
             let totalDailyCompleted = 0;
             allDailyActive.forEach(h => {
                 if (isHabitCompletedOnDate(h, currentDateStr)) totalDailyCompleted++;
@@ -2075,11 +2333,21 @@
                 const isCompleted = isHabitCompletedOnDate(habit, currentDateStr);
                 if (isCompleted) completedCount++;
 
-                const currentVal = logs[currentDateStr] && logs[currentDateStr][habit.id] !== undefined ? logs[currentDateStr][habit.id] : '';
+                const hasInput = logs[currentDateStr] && logs[currentDateStr][habit.id] !== undefined;
+                const currentVal = hasInput ? logs[currentDateStr][habit.id] : (habit.type === 'number' ? 0 : '');
+                const entryNote = getHabitEntryNote(habit.id, currentDateStr);
                 const streak = calculateCurrentStreak(habit);
+                const weeklyProgress = habit.frequency === 'weekly' ? getHabitWeeklyProgress(habit, currentDateStr) : null;
+                const weeklyGoalMet = weeklyProgress ? weeklyProgress.completed >= weeklyProgress.target : false;
+                const cardCompleted = habit.frequency === 'weekly' ? weeklyGoalMet : isCompleted;
+                const frequencyLabel = getHabitFrequencyLabel(habit);
+                const streakUnit = habit.frequency === 'weekly' ? 'wk' : 'day';
+                const statusText = habit.frequency === 'weekly'
+                    ? `${weeklyProgress.completed}/${weeklyProgress.target} this week${weeklyGoalMet ? ' ✓' : ''}`
+                    : (isCompleted ? 'Done today ✓' : 'Not yet completed');
 
                 const card = document.createElement('div');
-                card.className = `habit-card ${isCompleted ? 'completed' : ''}`;
+                card.className = `habit-card ${cardCompleted ? 'completed' : ''}`;
                 card.style.borderLeft = `5px solid ${habit.color || '#10b981'}`;
 
                 // Build category badge color
@@ -2109,7 +2377,7 @@
                             </div>
                             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.35rem;">
                                 <span>Goal: ${habit.condition} ${habit.target} ${habit.unit}</span>
-                                <span>${isCompleted ? '✓ Goal Reached' : 'In Progress'}</span>
+                                <span>${isCompleted ? '✓ Goal Reached' : (hasInput ? 'Below target' : 'No input = 0')}</span>
                             </div>
                         </div>
                     `;
@@ -2130,25 +2398,32 @@
                     <div>
                         <div class="habit-card-top">
                             <div class="habit-title-area">
-                                <span class="category-tag" style="background: ${catBg}; color: ${catColor};">${habit.category} • ${habit.frequency}</span>
-                                <div class="habit-name">${habit.name}</div>
+                                <span class="category-tag" style="background: ${catBg}; color: ${catColor};">${escapeHtml(habit.category)} • ${escapeHtml(frequencyLabel)}</span>
+                                <div class="habit-name">${escapeHtml(habit.name)}</div>
                             </div>
                             <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem;" onclick="openHabitModal('${habit.id}')" title="Modify Habit">Edit</button>
                         </div>
-                        ${habit.notes ? `<div class="habit-notes">${habit.notes}</div>` : ''}
+                        ${habit.notes ? `<div class="habit-notes">${escapeHtml(habit.notes)}</div>` : ''}
                     </div>
                     <div class="habit-control-area">
                         ${inputHtml}
                     </div>
+                    <textarea class="habit-entry-note" placeholder="Add an optional note for this habit on this date…" aria-label="Note for ${escapeHtml(habit.name)}" onchange="saveHabitEntryNote('${habit.id}', this.value)">${escapeHtml(entryNote)}</textarea>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid rgba(51, 65, 85, 0.4);">
-                        <span class="streak-pill">🔥 ${streak}d streak</span>
-                        <span style="font-size: 0.75rem; font-weight: 600; color: ${isCompleted ? '#34d399' : 'var(--text-muted)'};">
-                            ${isCompleted ? 'Done Today ✓' : 'Not yet completed'}
+                        <span class="streak-pill">🔥 ${streak} ${streakUnit} streak</span>
+                        <span style="font-size: 0.75rem; font-weight: 600; color: ${cardCompleted ? '#34d399' : 'var(--text-muted)'};">
+                            ${statusText}
                         </span>
                     </div>
                 `;
                 grid.appendChild(card);
             });
+
+            if (activeHabits.length === 0) {
+                grid.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--text-secondary);">
+                    No habits are scheduled for ${formatDateReadable(currentDateStr)}.
+                </div>`;
+            }
 
             // Update Progress Bar
             const totalDaily = allDailyActive.length;
@@ -2188,6 +2463,23 @@
         }
 
         /* Habit logging helpers */
+        function getHabitEntryNote(habitId, dateStr) {
+            const note = habitNotes[dateStr] && habitNotes[dateStr][habitId];
+            return typeof note === 'string' ? note : '';
+        }
+
+        function saveHabitEntryNote(habitId, value) {
+            const note = String(value || '').trim();
+            if (note) {
+                if (!habitNotes[currentDateStr]) habitNotes[currentDateStr] = {};
+                habitNotes[currentDateStr][habitId] = note;
+            } else if (habitNotes[currentDateStr]) {
+                delete habitNotes[currentDateStr][habitId];
+                if (Object.keys(habitNotes[currentDateStr]).length === 0) delete habitNotes[currentDateStr];
+            }
+            saveToStorage();
+        }
+
         function toggleHabitCheck(habitId) {
             if (!logs[currentDateStr]) logs[currentDateStr] = {};
             const cur = logs[currentDateStr][habitId];
@@ -2528,46 +2820,37 @@
         }
 
         /* =========================================================================
-           HABITS ANALYTICS & STREAKS
+           HABIT-LEVEL & WEEKLY ANALYTICS
            ========================================================================= */
         function calculateCurrentStreak(habit) {
-            let streak = 0;
-            let checkDate = getTodayDateStr();
-            // If checking weekly habit, streak goes by weeks
             if (habit.frequency === 'weekly') {
-                // Check past weeks
-                let checkWeekStart = getWeekStartDateStr(checkDate);
+                let weekStart = getWeekStartDateStr(getTodayDateStr());
+                const currentWeekProgress = getHabitWeeklyProgress(habit, getTodayDateStr());
+
+                // An unfinished current week does not erase a streak completed last week.
+                if (currentWeekProgress.completed < currentWeekProgress.target) {
+                    weekStart = addDaysToDateStr(weekStart, -7);
+                }
+
+                let streak = 0;
                 while (true) {
-                    let doneThisWeek = false;
-                    for (let i = 0; i < 7; i++) {
-                        const dStr = addDaysToDateStr(checkWeekStart, i);
-                        if (isHabitCompletedOnDate(habit, dStr)) {
-                            doneThisWeek = true;
-                            break;
-                        }
-                    }
-                    if (doneThisWeek) {
-                        streak++;
-                        checkWeekStart = addDaysToDateStr(checkWeekStart, -7);
-                    } else {
-                        break;
-                    }
+                    const completed = getHabitCompletionCount(habit, weekStart, addDaysToDateStr(weekStart, 6));
+                    if (completed < getHabitWeeklyTarget(habit)) break;
+                    streak++;
+                    weekStart = addDaysToDateStr(weekStart, -7);
                 }
                 return streak;
             }
 
-            // Daily habit check back consecutive days
-            // If not done today yet, check starting from yesterday
+            let streak = 0;
+            let checkDate = getTodayDateStr();
+            // An unfinished today does not erase a streak completed yesterday.
             if (!isHabitCompletedOnDate(habit, checkDate)) {
                 checkDate = addDaysToDateStr(checkDate, -1);
             }
-            while (true) {
-                if (isHabitCompletedOnDate(habit, checkDate)) {
-                    streak++;
-                    checkDate = addDaysToDateStr(checkDate, -1);
-                } else {
-                    break;
-                }
+            while (isHabitCompletedOnDate(habit, checkDate)) {
+                streak++;
+                checkDate = addDaysToDateStr(checkDate, -1);
             }
             return streak;
         }
@@ -2582,216 +2865,427 @@
             }[ch]));
         }
 
-        function getHabitLogDisplayValue(habit, dateStr) {
-            const value = logs[dateStr] && logs[dateStr][habit.id];
-            if (value === undefined || value === null || value === '') return '';
-            if (habit.type === 'check') return 'Done';
-            if (habit.type === 'number') return `${value} ${habit.unit || ''}`.trim();
-            return String(value);
+        function hasHabitInputOnDate(habit, dateStr) {
+            return Boolean(logs[dateStr]) &&
+                logs[dateStr][habit.id] !== undefined &&
+                logs[dateStr][habit.id] !== null &&
+                logs[dateStr][habit.id] !== '';
+        }
+
+        function getHabitLogDisplayValue(habit, dateStr, zeroWhenMissing = false) {
+            const hasInput = hasHabitInputOnDate(habit, dateStr);
+            const value = hasInput ? logs[dateStr][habit.id] : undefined;
+
+            if (!hasInput) {
+                if (!zeroWhenMissing) return '';
+                return habit.type === 'number' ? `0 ${habit.unit || ''}`.trim() : '0';
+            }
+            if (habit.type === 'check') {
+                return isHabitCompletedOnDate(habit, dateStr) ? 'Done (1)' : '0';
+            }
+            if (habit.type === 'number') {
+                const numericValue = parseFloat(value);
+                return `${Number.isFinite(numericValue) ? numericValue : 0} ${habit.unit || ''}`.trim();
+            }
+            return String(value).trim() || '0';
+        }
+
+        function getHabitNumericInput(habit, dateStr) {
+            if (!hasHabitInputOnDate(habit, dateStr)) return 0;
+            if (habit.type === 'number') {
+                const value = parseFloat(logs[dateStr][habit.id]);
+                return Number.isFinite(value) ? value : 0;
+            }
+            return isHabitCompletedOnDate(habit, dateStr) ? 1 : 0;
         }
 
         function calculateBestStreak(habit) {
-            // Scan all historical logs up to today
-            const allDates = Object.keys(logs).sort();
-            if (allDates.length === 0) return 0;
+            const habitLogDates = Object.keys(logs)
+                .filter(dateStr => dateStr <= getTodayDateStr() && isHabitScheduledOnDate(habit, dateStr) && hasHabitInputOnDate(habit, dateStr))
+                .sort();
+            if (habitLogDates.length === 0) return 0;
+
+            if (habit.frequency === 'weekly') {
+                let weekStart = getWeekStartDateStr(habitLogDates[0]);
+                const lastWeekStart = getWeekStartDateStr(getTodayDateStr());
+                let best = 0;
+                let current = 0;
+                while (weekStart <= lastWeekStart) {
+                    const done = getHabitCompletionCount(habit, weekStart, addDaysToDateStr(weekStart, 6));
+                    if (done >= getHabitWeeklyTarget(habit)) {
+                        current++;
+                        best = Math.max(best, current);
+                    } else {
+                        current = 0;
+                    }
+                    weekStart = addDaysToDateStr(weekStart, 7);
+                }
+                return Math.max(best, calculateCurrentStreak(habit));
+            }
 
             let best = 0;
             let current = 0;
-            const start = allDates[0];
-            const end = getTodayDateStr();
-            let d = start;
-
-            while (d <= end) {
-                if (isHabitCompletedOnDate(habit, d)) {
+            let dateStr = habitLogDates[0];
+            const endDate = getTodayDateStr();
+            while (dateStr <= endDate) {
+                if (isHabitCompletedOnDate(habit, dateStr)) {
                     current++;
-                    if (current > best) best = current;
+                    best = Math.max(best, current);
                 } else {
-                    if (habit.frequency === 'daily') current = 0;
+                    current = 0;
                 }
-                d = addDaysToDateStr(d, 1);
+                dateStr = addDaysToDateStr(dateStr, 1);
             }
             return Math.max(best, calculateCurrentStreak(habit));
         }
 
-        function renderHabitsAnalyticsTab() {
-            // Render Heatmap (last 84 days = 12 weeks)
-            const heatmapContainer = document.getElementById('heatmap-container');
-            heatmapContainer.innerHTML = '';
-            const grid = document.createElement('div');
-            grid.className = 'heatmap-grid';
-
-            const todayStr = getTodayDateStr();
-            const startHeatmapDate = addDaysToDateStr(todayStr, -83);
-            const activeDailyHabits = habits.filter(h => h.active && h.frequency === 'daily');
-
-            let totalCheckinsAllTime = 0;
-            let totalPossibleLast7 = activeDailyHabits.length * 7;
-            let completedLast7 = 0;
-
-            // Compute last 7 days completion rate
-            for (let i = 0; i < 7; i++) {
-                const d = addDaysToDateStr(todayStr, -i);
-                activeDailyHabits.forEach(h => {
-                    if (isHabitCompletedOnDate(h, d)) completedLast7++;
+        function getAnalyticsWeekSegments(startDateStr, endDateStr) {
+            const segments = [];
+            let weekStart = getWeekStartDateStr(startDateStr);
+            while (weekStart <= endDateStr) {
+                const weekEnd = addDaysToDateStr(weekStart, 6);
+                const segmentStart = weekStart < startDateStr ? startDateStr : weekStart;
+                const segmentEnd = weekEnd > endDateStr ? endDateStr : weekEnd;
+                segments.push({
+                    weekStart: weekStart,
+                    weekEnd: weekEnd,
+                    start: segmentStart,
+                    end: segmentEnd,
+                    dayCount: getDateRange(segmentStart, segmentEnd).length,
+                    partial: segmentStart !== weekStart || segmentEnd !== weekEnd
                 });
+                weekStart = addDaysToDateStr(weekStart, 7);
             }
-            const weeklyRate = totalPossibleLast7 > 0 ? Math.round((completedLast7 / totalPossibleLast7) * 100) : 0;
-            document.getElementById('habits-weekly-rate').textContent = `${weeklyRate}%`;
+            return segments;
+        }
 
-            // Compute total checkins and active streaks
-            let activeStreaksCount = 0;
-            let maxBestStreak = 0;
-            let bestHabitName = '--';
+        function getExpectedCheckinsForSegment(habit, segment) {
+            return getDateRange(segment.start, segment.end)
+                .filter(dateStr => isHabitScheduledOnDate(habit, dateStr)).length;
+        }
 
-            habits.filter(h => h.active).forEach(h => {
-                const curStrk = calculateCurrentStreak(h);
-                if (curStrk >= 3) activeStreaksCount++;
-                const bStrk = calculateBestStreak(h);
-                if (bStrk > maxBestStreak) {
-                    maxBestStreak = bStrk;
-                    bestHabitName = h.name;
-                }
+        function getHabitRangeStats(habit, startDateStr, endDateStr) {
+            const dates = getDateRange(startDateStr, endDateStr);
+            const scheduledDates = dates.filter(dateStr => isHabitScheduledOnDate(habit, dateStr));
+            const segments = getAnalyticsWeekSegments(startDateStr, endDateStr);
+            let expected = 0;
+            let credited = 0;
+            let successful = 0;
 
-                // Count total completions across all time
-                Object.keys(logs).forEach(dateKey => {
-                    if (isHabitCompletedOnDate(h, dateKey)) totalCheckinsAllTime++;
-                });
+            segments.forEach(segment => {
+                const segmentExpected = getExpectedCheckinsForSegment(habit, segment);
+                const segmentSuccessful = getHabitCompletionCount(habit, segment.start, segment.end);
+                expected += segmentExpected;
+                successful += segmentSuccessful;
+                credited += Math.min(segmentSuccessful, segmentExpected);
             });
 
-            document.getElementById('habits-active-streaks').textContent = activeStreaksCount;
-            document.getElementById('habits-best-habit-name').textContent = `Top performer: ${bestHabitName}`;
-            document.getElementById('habits-total-checkins').textContent = totalCheckinsAllTime;
+            const inputTotal = scheduledDates.reduce((sum, dateStr) => sum + getHabitNumericInput(habit, dateStr), 0);
+            const inputAverage = scheduledDates.length ? inputTotal / scheduledDates.length : 0;
+            const rate = expected ? Math.round((credited / expected) * 100) : 0;
+            return { expected, credited, successful, inputTotal, inputAverage, rate, dayCount: scheduledDates.length };
+        }
 
-            // Populate Heatmap Grid columns (12 weeks x 7 days)
-            let curDate = startHeatmapDate;
-            for (let w = 0; w < 12; w++) {
+        function getHabitTargetLabel(habit) {
+            if (habit.type === 'check') return 'Mark done';
+            if (habit.type === 'text') return 'Any non-empty text';
+            return `${habit.condition || '>='} ${habit.target} ${habit.unit || ''}`.trim();
+        }
+
+        function getAnalyticsHabits() {
+            const activeHabits = habits.filter(h => h.active);
+            if (analyticsHabitId === 'all') return activeHabits;
+            return activeHabits.filter(h => h.id === analyticsHabitId);
+        }
+
+        function ensureAnalyticsControls() {
+            const todayStr = getTodayDateStr();
+            if (!analyticsStartDateStr) analyticsStartDateStr = addDaysToDateStr(todayStr, -83);
+            if (!analyticsEndDateStr) analyticsEndDateStr = todayStr;
+
+            const select = document.getElementById('analytics-habit-select');
+            const activeHabits = habits.filter(h => h.active);
+            if (analyticsHabitId !== 'all' && !activeHabits.some(h => h.id === analyticsHabitId)) {
+                analyticsHabitId = 'all';
+            }
+            select.innerHTML = '<option value="all">All active habits</option>' + activeHabits.map(h =>
+                `<option value="${escapeHtml(h.id)}">${escapeHtml(h.name)} — ${escapeHtml(getHabitFrequencyLabel(h))}</option>`
+            ).join('');
+            select.value = analyticsHabitId;
+            document.getElementById('analytics-start-date').value = analyticsStartDateStr;
+            document.getElementById('analytics-end-date').value = analyticsEndDateStr;
+        }
+
+        function applyAnalyticsFilters() {
+            const startInput = document.getElementById('analytics-start-date');
+            const endInput = document.getElementById('analytics-end-date');
+            const habitInput = document.getElementById('analytics-habit-select');
+            const nextStart = startInput.value;
+            const nextEnd = endInput.value;
+
+            if (!nextStart || !nextEnd) {
+                alert('Please select both a start date and an end date.');
+                return;
+            }
+            if (nextStart > nextEnd) {
+                alert('Start date must be before or equal to end date.');
+                return;
+            }
+
+            analyticsStartDateStr = nextStart;
+            analyticsEndDateStr = nextEnd;
+            analyticsHabitId = habitInput.value || 'all';
+            renderHabitsAnalyticsTab();
+        }
+
+        function setAnalyticsRange(dayCount) {
+            analyticsEndDateStr = getTodayDateStr();
+            analyticsStartDateStr = addDaysToDateStr(analyticsEndDateStr, -(dayCount - 1));
+            const startInput = document.getElementById('analytics-start-date');
+            const endInput = document.getElementById('analytics-end-date');
+            if (startInput) startInput.value = analyticsStartDateStr;
+            if (endInput) endInput.value = analyticsEndDateStr;
+            applyAnalyticsFilters();
+        }
+
+        function selectHabitAnalytics(habitId) {
+            analyticsHabitId = habitId;
+            const select = document.getElementById('analytics-habit-select');
+            if (select) select.value = habitId;
+            renderHabitsAnalyticsTab();
+            document.getElementById('tab-habits-analytics').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderHabitsAnalyticsTab() {
+            ensureAnalyticsControls();
+            const analyticsHabits = getAnalyticsHabits();
+            const selectedHabit = analyticsHabitId === 'all' ? null : analyticsHabits[0];
+            const rangeLabel = `${formatDateReadable(analyticsStartDateStr)} – ${formatDateReadable(analyticsEndDateStr)}`;
+            const contextName = selectedHabit ? selectedHabit.name : 'all active habits';
+            document.getElementById('analytics-context').textContent =
+                `Showing ${contextName} from ${rangeLabel}. Missing scheduled input is calculated as 0; unscheduled days are excluded.`;
+
+            let expectedTotal = 0;
+            let creditedTotal = 0;
+            let successfulTotal = 0;
+            analyticsHabits.forEach(habit => {
+                const stats = getHabitRangeStats(habit, analyticsStartDateStr, analyticsEndDateStr);
+                expectedTotal += stats.expected;
+                creditedTotal += stats.credited;
+                successfulTotal += stats.successful;
+            });
+            const rangeRate = expectedTotal ? Math.round((creditedTotal / expectedTotal) * 100) : 0;
+            document.getElementById('habits-weekly-rate').textContent = `${rangeRate}%`;
+            document.getElementById('habits-rate-sub').textContent = `${creditedTotal} of ${expectedTotal} required check-ins achieved`;
+            document.getElementById('habits-total-checkins').textContent = successfulTotal;
+            document.getElementById('habits-checkins-sub').textContent = `In selected range • missing scheduled input = 0`;
+
+            if (selectedHabit) {
+                const current = calculateCurrentStreak(selectedHabit);
+                const best = calculateBestStreak(selectedHabit);
+                const unit = selectedHabit.frequency === 'weekly' ? 'week' : 'day';
+                document.getElementById('habits-active-streaks').textContent = current;
+                document.getElementById('habits-best-habit-name').textContent = `Best: ${best} ${unit}${best === 1 ? '' : 's'}`;
+            } else {
+                const activeStreaks = analyticsHabits.filter(h => calculateCurrentStreak(h) > 0).length;
+                let bestHabit = null;
+                let bestStreak = 0;
+                analyticsHabits.forEach(h => {
+                    const best = calculateBestStreak(h);
+                    if (best > bestStreak) {
+                        bestStreak = best;
+                        bestHabit = h;
+                    }
+                });
+                document.getElementById('habits-active-streaks').textContent = activeStreaks;
+                document.getElementById('habits-best-habit-name').textContent = bestHabit
+                    ? `Best: ${bestHabit.name} (${bestStreak})`
+                    : 'Best habit: --';
+            }
+
+            renderAnalyticsHeatmap(analyticsHabits, selectedHabit);
+            renderWeeklyAnalyticsTable(analyticsHabits);
+            renderDailyCompletionTable(analyticsHabits, analyticsStartDateStr, analyticsEndDateStr);
+            renderHabitAnalyticsTable(analyticsHabits, analyticsStartDateStr, analyticsEndDateStr);
+        }
+
+        function renderAnalyticsHeatmap(analyticsHabits, selectedHabit) {
+            const container = document.getElementById('heatmap-container');
+            container.innerHTML = '';
+            document.getElementById('analytics-heatmap-title').textContent = selectedHabit
+                ? `${selectedHabit.name} Consistency Heatmap`
+                : 'All Habits Consistency Heatmap';
+
+            const dates = getDateRange(analyticsStartDateStr, analyticsEndDateStr);
+            if (dates.length === 0 || analyticsHabits.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-secondary);padding:1rem 0;">No active habits or dates to display.</div>';
+                return;
+            }
+
+            const weekCount = Math.ceil(dates.length / 7);
+            const grid = document.createElement('div');
+            grid.className = 'heatmap-grid';
+            grid.style.gridTemplateColumns = `repeat(${weekCount}, minmax(16px, 1fr))`;
+            grid.style.minWidth = `${Math.max(280, weekCount * 22)}px`;
+
+            for (let columnIndex = 0; columnIndex < weekCount; columnIndex++) {
                 const col = document.createElement('div');
                 col.className = 'heatmap-col';
-                for (let day = 0; day < 7; day++) {
-                    const cellDate = curDate;
+                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                    const dateIndex = (columnIndex * 7) + dayIndex;
+                    if (dateIndex >= dates.length) break;
+                    const cellDate = dates[dateIndex];
                     const cell = document.createElement('div');
                     cell.className = 'heatmap-cell';
-
-                    let dayCompletions = 0;
-                    activeDailyHabits.forEach(h => {
-                        if (isHabitCompletedOnDate(h, cellDate)) dayCompletions++;
-                    });
-
-                    const pct = activeDailyHabits.length > 0 ? dayCompletions / activeDailyHabits.length : 0;
-                    if (pct === 0) {
-                        cell.style.backgroundColor = '#0f172a';
-                    } else if (pct <= 0.35) {
-                        cell.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
-                    } else if (pct <= 0.75) {
-                        cell.style.backgroundColor = 'rgba(16, 185, 129, 0.6)';
-                    } else {
-                        cell.style.backgroundColor = '#10b981';
-                    }
-
-                    cell.addEventListener('mouseover', (e) => {
-                        showTooltip(e, `<strong>${formatDateReadable(cellDate)}</strong><br>${dayCompletions}/${activeDailyHabits.length} habits completed`);
+                    const scheduledHabits = analyticsHabits.filter(h => isHabitScheduledOnDate(h, cellDate));
+                    const completed = scheduledHabits.filter(h => isHabitCompletedOnDate(h, cellDate)).length;
+                    const pct = scheduledHabits.length ? completed / scheduledHabits.length : 0;
+                    cell.style.backgroundColor = scheduledHabits.length === 0 ? '#1e293b'
+                        : pct === 0 ? '#0f172a'
+                        : pct <= 0.35 ? 'rgba(16, 185, 129, 0.25)'
+                        : pct <= 0.75 ? 'rgba(16, 185, 129, 0.6)'
+                        : '#10b981';
+                    cell.addEventListener('mouseover', e => {
+                        const inputText = scheduledHabits.length
+                            ? scheduledHabits.map(h => {
+                                const note = getHabitEntryNote(h.id, cellDate);
+                                return `${escapeHtml(h.name)}: ${escapeHtml(getHabitLogDisplayValue(h, cellDate, true))}${note ? `<br>↳ Note: ${escapeHtml(note)}` : ''}`;
+                            }).join('<br>')
+                            : 'No selected habits scheduled';
+                        showTooltip(e, `<strong>${formatDateReadable(cellDate)}</strong><br>${completed}/${scheduledHabits.length} scheduled habits completed<br>${inputText}`);
                     });
                     cell.addEventListener('mouseout', hideTooltip);
-
                     col.appendChild(cell);
-                    curDate = addDaysToDateStr(curDate, 1);
                 }
                 grid.appendChild(col);
             }
-            heatmapContainer.appendChild(grid);
+            container.appendChild(grid);
+        }
 
-            renderDailyCompletionTable(todayStr);
-
-            // Populate Table
-            const tbody = document.getElementById('habits-analytics-tbody');
+        function renderWeeklyAnalyticsTable(analyticsHabits) {
+            const tbody = document.getElementById('weekly-analytics-tbody');
             tbody.innerHTML = '';
+            const segments = getAnalyticsWeekSegments(analyticsStartDateStr, analyticsEndDateStr).reverse();
 
-            habits.filter(h => h.active).forEach(h => {
-                const curStrk = calculateCurrentStreak(h);
-                const bestStrk = calculateBestStreak(h);
-
-                // 30-day rate
-                let completed30 = 0;
-                for (let i = 0; i < 30; i++) {
-                    if (isHabitCompletedOnDate(h, addDaysToDateStr(todayStr, -i))) completed30++;
-                }
-                const rate30 = Math.round((completed30 / 30) * 100);
-
+            segments.forEach(segment => {
+                let expected = 0;
+                let successful = 0;
+                let credited = 0;
+                let goalsMet = 0;
+                analyticsHabits.forEach(habit => {
+                    const habitExpected = getExpectedCheckinsForSegment(habit, segment);
+                    const habitSuccessful = getHabitCompletionCount(habit, segment.start, segment.end);
+                    expected += habitExpected;
+                    successful += habitSuccessful;
+                    credited += Math.min(habitSuccessful, habitExpected);
+                    if (habitExpected > 0 && habitSuccessful >= habitExpected) goalsMet++;
+                });
+                const rate = expected ? Math.round((credited / expected) * 100) : 0;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>
-                        <div style="font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 10px; height: 10px; border-radius: 50%; background: ${h.color || '#10b981'};"></span>
-                            ${h.name}
-                        </div>
-                        <div style="font-size: 0.78rem; color: var(--text-secondary);">${h.category}</div>
+                        <strong>${formatDateReadable(segment.start)}</strong>
+                        <div style="font-size:0.78rem;color:var(--text-secondary);">to ${formatDateReadable(segment.end)}${segment.partial ? ' • partial week' : ''}</div>
                     </td>
+                    <td style="font-weight:700;">${expected}</td>
+                    <td style="font-weight:700;color:#34d399;">${successful}</td>
+                    <td>${goalsMet}/${analyticsHabits.length} habits</td>
                     <td>
-                        <span class="category-tag" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">${h.frequency}</span>
-                        <div style="font-size: 0.8rem; margin-top: 0.2rem;">${h.condition || ''} ${h.target || ''} ${h.unit || ''}</div>
-                    </td>
-                    <td><span class="streak-pill" style="display:inline-flex;">🔥 ${curStrk} days</span></td>
-                    <td style="font-weight: 700; color: var(--text-primary);">${bestStrk} days</td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-weight: 700; width: 40px;">${rate30}%</span>
-                            <div class="progress-track" style="margin: 0; flex: 1;">
-                                <div class="progress-fill" style="width: ${rate30}%; background: ${h.color || '#10b981'};"></div>
-                            </div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;min-width:140px;">
+                            <strong style="width:42px;">${rate}%</strong>
+                            <div class="progress-track" style="margin:0;flex:1;"><div class="progress-fill" style="width:${rate}%;background:#10b981;"></div></div>
                         </div>
-                    </td>
-                    <td style="font-weight: 700;">${completed30} days</td>
-                `;
+                    </td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        function renderDailyCompletionTable(todayStr) {
+        function renderDailyCompletionTable(analyticsHabits, startDateStr, endDateStr) {
             const tbody = document.getElementById('daily-completion-tbody');
-            if (!tbody) return;
             tbody.innerHTML = '';
+            const dates = getDateRange(startDateStr, endDateStr).reverse();
 
-            const activeDailyHabits = habits.filter(h => h.active && h.frequency === 'daily');
-            for (let i = 0; i < 30; i++) {
-                const dateStr = addDaysToDateStr(todayStr, -i);
+            dates.forEach(dateStr => {
+                const scheduledHabits = analyticsHabits.filter(habit => isHabitScheduledOnDate(habit, dateStr));
                 const completed = [];
-                const missed = [];
-
-                activeDailyHabits.forEach(h => {
-                    const displayVal = getHabitLogDisplayValue(h, dateStr);
-                    if (isHabitCompletedOnDate(h, dateStr)) {
-                        completed.push(`${h.name}${displayVal && displayVal !== 'Done' ? ` (${displayVal})` : ''}`);
+                const zeroOrBelow = [];
+                scheduledHabits.forEach(habit => {
+                    const displayValue = getHabitLogDisplayValue(habit, dateStr, true);
+                    const note = getHabitEntryNote(habit.id, dateStr);
+                    const label = `${habit.name} (${displayValue})${note ? ` • Note: ${note}` : ''}`;
+                    if (isHabitCompletedOnDate(habit, dateStr)) {
+                        completed.push(label);
                     } else {
-                        missed.push(h.name);
+                        zeroOrBelow.push(hasHabitInputOnDate(habit, dateStr) ? `${label} • below target` : label);
                     }
                 });
 
-                const total = activeDailyHabits.length;
-                const pct = total > 0 ? Math.round((completed.length / total) * 100) : 0;
+                const total = scheduledHabits.length;
+                const pct = total ? Math.round((completed.length / total) * 100) : 0;
                 const completedHtml = completed.length
-                    ? completed.map(name => `<span class="analytics-pill completed">✓ ${escapeHtml(name)}</span>`).join('')
-                    : '<span style="color: var(--text-muted);">No habits completed</span>';
-                const missedHtml = missed.length
-                    ? missed.map(name => `<span class="analytics-pill missed">✕ ${escapeHtml(name)}</span>`).join('')
-                    : '<span style="color: #34d399; font-weight: 700;">Nothing missed</span>';
-
+                    ? completed.map(label => `<span class="analytics-pill completed">✓ ${escapeHtml(label)}</span>`).join('')
+                    : `<span style="color:var(--text-muted);">${total ? 'No completed check-ins' : 'No selected habits scheduled'}</span>`;
+                const zeroHtml = total === 0
+                    ? '<span style="color:var(--text-muted);">Not scheduled</span>'
+                    : zeroOrBelow.length
+                        ? zeroOrBelow.map(label => `<span class="analytics-pill missed">0 ${escapeHtml(label)}</span>`).join('')
+                        : '<span style="color:#34d399;font-weight:700;">All scheduled habits completed</span>';
+                const percentageLabel = total ? `${pct}%` : '—';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${formatDateReadable(dateStr)}</strong></td>
                     <td>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 130px;">
-                            <span style="font-weight: 800; width: 42px; color: ${pct === 100 ? '#34d399' : pct >= 50 ? '#fbbf24' : '#fb7185'};">${pct}%</span>
-                            <div class="progress-track" style="margin: 0; flex: 1;">
-                                <div class="progress-fill" style="width: ${pct}%; background: ${pct === 100 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#f43f5e'};"></div>
-                            </div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;min-width:130px;">
+                            <span style="font-weight:800;width:42px;color:${total === 0 ? 'var(--text-muted)' : pct === 100 ? '#34d399' : pct >= 50 ? '#fbbf24' : '#fb7185'};">${percentageLabel}</span>
+                            <div class="progress-track" style="margin:0;flex:1;"><div class="progress-fill" style="width:${pct}%;background:${pct === 100 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#f43f5e'};"></div></div>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">${completed.length}/${total} completed</div>
+                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">${completed.length}/${total} scheduled completed</div>
                     </td>
                     <td><div class="analytics-log-list">${completedHtml}</div></td>
-                    <td><div class="analytics-log-list">${missedHtml}</div></td>
-                `;
+                    <td><div class="analytics-log-list">${zeroHtml}</div></td>`;
                 tbody.appendChild(tr);
-            }
+            });
+        }
+
+        function renderHabitAnalyticsTable(analyticsHabits, startDateStr, endDateStr) {
+            const tbody = document.getElementById('habits-analytics-tbody');
+            tbody.innerHTML = '';
+
+            analyticsHabits.forEach(habit => {
+                const currentStreak = calculateCurrentStreak(habit);
+                const bestStreak = calculateBestStreak(habit);
+                const stats = getHabitRangeStats(habit, startDateStr, endDateStr);
+                const noteCount = getDateRange(startDateStr, endDateStr)
+                    .filter(dateStr => isHabitScheduledOnDate(habit, dateStr) && getHabitEntryNote(habit.id, dateStr)).length;
+                const streakUnit = habit.frequency === 'weekly' ? 'wk' : 'day';
+                const inputAverage = habit.type === 'number'
+                    ? `${stats.inputAverage.toFixed(1)} ${habit.unit || ''}/scheduled day`.trim()
+                    : `${stats.inputAverage.toFixed(2)} per scheduled day`;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;">
+                            <span style="width:10px;height:10px;border-radius:50%;background:${habit.color || '#10b981'};"></span>
+                            ${escapeHtml(habit.name)}
+                        </div>
+                        <div style="font-size:0.78rem;color:var(--text-secondary);">${escapeHtml(habit.category)}</div>
+                    </td>
+                    <td>
+                        <span class="category-tag" style="background:rgba(59,130,246,0.15);color:#60a5fa;">${escapeHtml(getHabitFrequencyLabel(habit))}</span>
+                        <div style="font-size:0.8rem;margin-top:0.2rem;">Per check-in: ${escapeHtml(getHabitTargetLabel(habit))}</div>
+                    </td>
+                    <td><span class="streak-pill" style="display:inline-flex;">🔥 ${currentStreak} ${streakUnit}</span><div style="font-size:0.78rem;margin-top:0.3rem;color:var(--text-secondary);">Best: ${bestStreak} ${streakUnit}</div></td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:0.5rem;min-width:120px;">
+                            <strong style="width:42px;">${stats.rate}%</strong>
+                            <div class="progress-track" style="margin:0;flex:1;"><div class="progress-fill" style="width:${stats.rate}%;background:${habit.color || '#10b981'};"></div></div>
+                        </div>
+                    </td>
+                    <td><strong>${escapeHtml(inputAverage)}</strong><div style="font-size:0.75rem;color:var(--text-secondary);">zero included for missing scheduled dates</div></td>
+                    <td style="font-weight:700;">${stats.successful} / ${stats.expected}<div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">${noteCount} note${noteCount === 1 ? '' : 's'}</div></td>
+                    <td><button class="btn btn-secondary btn-sm" onclick="selectHabitAnalytics('${habit.id}')">View habit</button></td>`;
+                tbody.appendChild(tr);
+            });
         }
 
         /* =========================================================================
@@ -2824,7 +3318,7 @@
                         <span style="text-transform: capitalize; font-weight: 600;">${h.type}</span>
                         <div style="font-size: 0.82rem; color: var(--accent-primary);">${h.condition || ''} ${h.target || ''} ${h.unit || ''}</div>
                     </td>
-                    <td><span class="category-tag" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">${h.frequency}</span></td>
+                    <td><span class="category-tag" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">${escapeHtml(getHabitFrequencyLabel(h))}</span></td>
                     <td>
                         <span class="stat-badge ${h.active ? 'emerald' : 'amber'}" style="padding: 0.2rem 0.6rem; font-size: 0.78rem;">
                             ${h.active ? 'Active' : 'Archived'}
@@ -2866,6 +3360,10 @@
                 Object.keys(logs).forEach(dateKey => {
                     delete logs[dateKey][habitId];
                 });
+                Object.keys(habitNotes).forEach(dateKey => {
+                    delete habitNotes[dateKey][habitId];
+                    if (Object.keys(habitNotes[dateKey]).length === 0) delete habitNotes[dateKey];
+                });
                 saveToStorage();
                 renderManageHabitsTab();
             }
@@ -2885,6 +3383,7 @@
                 };
             });
 
+            let modalScheduleDays = getDefaultScheduleDays(3);
             if (habitId) {
                 const h = habits.find(x => x.id === habitId);
                 if (h) {
@@ -2893,6 +3392,7 @@
                     document.getElementById('modal-habit-name').value = h.name;
                     document.getElementById('modal-habit-category').value = h.category;
                     document.getElementById('modal-habit-frequency').value = h.frequency;
+                    modalScheduleDays = h.frequency === 'weekly' ? getHabitScheduleDays(h) : getDefaultScheduleDays(3);
                     document.getElementById('modal-habit-type').value = h.type;
                     document.getElementById('modal-habit-condition').value = h.condition || '>=';
                     document.getElementById('modal-habit-target').value = h.target !== undefined ? h.target : '';
@@ -2920,12 +3420,45 @@
                 if (sw.getAttribute('data-color') === selectedModalColor) sw.classList.add('selected');
             });
 
+            setHabitWeekdaySelection(modalScheduleDays);
             onHabitTypeChange(document.getElementById('modal-habit-type').value);
+            onHabitFrequencyChange(document.getElementById('modal-habit-frequency').value);
             modal.classList.add('active');
         }
 
         function closeHabitModal() {
             document.getElementById('habit-modal').classList.remove('active');
+        }
+
+        function getSelectedHabitWeekdays() {
+            return sortScheduleDays(Array.from(document.querySelectorAll('#modal-weekday-picker input:checked'))
+                .map(input => parseInt(input.value, 10)));
+        }
+
+        function setHabitWeekdaySelection(days) {
+            const selectedDays = new Set(days);
+            document.querySelectorAll('#modal-weekday-picker input').forEach(input => {
+                input.checked = selectedDays.has(parseInt(input.value, 10));
+            });
+            onHabitWeekdayChange();
+        }
+
+        function onHabitWeekdayChange() {
+            const selectedDays = getSelectedHabitWeekdays();
+            document.getElementById('modal-habit-frequency-count').value = selectedDays.length;
+            const summary = document.getElementById('modal-frequency-summary');
+            summary.textContent = selectedDays.length
+                ? `${selectedDays.length} time${selectedDays.length === 1 ? '' : 's'} a week • ${selectedDays.map(day => WEEKDAY_SHORT_LABELS[day]).join(', ')}`
+                : 'Select at least one weekday';
+            summary.style.color = selectedDays.length ? 'var(--accent-primary)' : 'var(--accent-rose)';
+        }
+
+        function onHabitFrequencyChange(frequency) {
+            const countGroup = document.getElementById('modal-frequency-count-group');
+            countGroup.style.display = frequency === 'weekly' ? 'block' : 'none';
+            if (frequency === 'weekly' && getSelectedHabitWeekdays().length === 0) {
+                setHabitWeekdaySelection(getDefaultScheduleDays(3));
+            }
         }
 
         function onHabitTypeChange(type) {
@@ -2949,6 +3482,14 @@
             const name = document.getElementById('modal-habit-name').value.trim();
             const category = document.getElementById('modal-habit-category').value;
             const frequency = document.getElementById('modal-habit-frequency').value;
+            const selectedScheduleDays = frequency === 'weekly'
+                ? getSelectedHabitWeekdays()
+                : [1, 2, 3, 4, 5, 6, 0];
+            if (frequency === 'weekly' && selectedScheduleDays.length === 0) {
+                alert('Please select at least one weekday for this habit.');
+                return;
+            }
+            const frequencyCount = selectedScheduleDays.length;
             const type = document.getElementById('modal-habit-type').value;
             const condition = document.getElementById('modal-habit-condition').value;
             const target = parseFloat(document.getElementById('modal-habit-target').value) || 1;
@@ -2965,8 +3506,10 @@
                 condition: type === 'check' ? '=' : condition,
                 unit: type === 'check' ? '' : unit,
                 frequency: frequency,
+                frequencyCount: frequencyCount,
+                scheduleDays: selectedScheduleDays,
                 color: selectedModalColor,
-                active: true,
+                active: existingIdx >= 0 ? habits[existingIdx].active : true,
                 notes: notes
             };
 
@@ -3004,9 +3547,10 @@
             document.getElementById('nav-current-weight').querySelector('span').textContent = `Weight: ${curWeightText}`;
 
             let completedToday = 0;
-            const dailyActive = habits.filter(h => h.active && h.frequency === 'daily');
+            const todayStr = getTodayDateStr();
+            const dailyActive = habits.filter(h => h.active && isHabitScheduledOnDate(h, todayStr));
             dailyActive.forEach(h => {
-                if (isHabitCompletedOnDate(h, getTodayDateStr())) completedToday++;
+                if (isHabitCompletedOnDate(h, todayStr)) completedToday++;
             });
             document.getElementById('nav-today-completion').querySelector('span').textContent = `Today: ${completedToday}/${dailyActive.length} Done`;
 
@@ -3015,12 +3559,15 @@
                 const s = calculateBestStreak(h);
                 if (s > maxStreak) maxStreak = s;
             });
-            document.getElementById('nav-best-streak').querySelector('span').textContent = `Max Streak: ${maxStreak}d`;
+            document.getElementById('nav-best-streak').querySelector('span').textContent = `Max Streak: ${maxStreak}`;
         }
 
         function renderAll() {
             renderDashboard();
             updateNavStats();
+            if (document.getElementById('tab-habits-analytics').classList.contains('active')) renderHabitsAnalyticsTab();
+            if (document.getElementById('tab-manage-habits').classList.contains('active')) renderManageHabitsTab();
+            if (document.getElementById('tab-weight').classList.contains('active')) renderWeightTab();
         }
 
         function loadSampleData() {
@@ -3050,6 +3597,13 @@
                 if (i % 7 === 0) logs[d]['weekly-ai-feature'] = true;
                 // Spirituality
                 logs[d]['spirituality'] = 25;
+
+                // A few sample per-entry notes demonstrate detailed habit tracking.
+                if (i % 5 === 0) {
+                    if (!habitNotes[d]) habitNotes[d] = {};
+                    habitNotes[d]['daily-exercise'] = i % 2 === 0 ? 'Strength session — upper body' : 'Brisk outdoor walk';
+                    habitNotes[d]['spirituality'] = 'Focused on breathing and gratitude';
+                }
             }
 
             // Generate sample weight logs every few days tapering down from 78 to 74.2
@@ -3072,6 +3626,7 @@
                 profile: profile,
                 habits: habits,
                 logs: logs,
+                habitNotes: habitNotes,
                 weightLogs: weightLogs,
                 exportDate: getTodayDateStr()
             };
@@ -3083,19 +3638,37 @@
             a.click();
         }
 
+        function csvEscape(value) {
+            const text = String(value ?? '');
+            return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+        }
+
         function exportCSV() {
-            let csv = "Date,Weight,Change,Notes\n";
-            weightLogs.forEach((w, i) => {
-                const prev = weightLogs[i - 1];
-                const change = prev ? (w.weight - prev.weight).toFixed(1) : 0;
-                csv += `${w.date},${w.weight},${change},"${w.notes || ''}"\n`;
+            const rows = [['Record Type', 'Date', 'Habit', 'Value', 'Unit', 'Note']];
+
+            weightLogs.forEach(entry => {
+                rows.push(['Weight', entry.date, 'Body Weight', entry.weight, profile.weightUnit, entry.notes || '']);
             });
+
+            const allHabitDates = [...new Set([...Object.keys(logs), ...Object.keys(habitNotes)])].sort();
+            allHabitDates.forEach(dateStr => {
+                habits.forEach(habit => {
+                    const hasInput = hasHabitInputOnDate(habit, dateStr);
+                    const note = getHabitEntryNote(habit.id, dateStr);
+                    if (!hasInput && !note) return;
+                    const value = getHabitLogDisplayValue(habit, dateStr, true);
+                    rows.push(['Habit', dateStr, habit.name, value, habit.unit || '', note]);
+                });
+            });
+
+            const csv = rows.map(row => row.map(csvEscape).join(',')).join('\n') + '\n';
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `weight-history-${getTodayDateStr()}.csv`;
+            a.download = `omnitrack-history-${getTodayDateStr()}.csv`;
             a.click();
+            URL.revokeObjectURL(url);
         }
 
         function importJSON(event) {
@@ -3105,8 +3678,9 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (data.habits) habits = data.habits;
+                    if (data.habits) habits = normalizeHabits(data.habits);
                     if (data.logs) logs = data.logs;
+                    habitNotes = data.habitNotes || {};
                     if (data.weightLogs) weightLogs = data.weightLogs;
                     if (data.profile) profile = data.profile;
                     saveToStorage();
@@ -3121,8 +3695,9 @@
         }
 
         function clearLogHistory() {
-            if (confirm('Are you sure you want to clear all daily habit and weight check-in logs while keeping your habit setup intact?')) {
+            if (confirm('Are you sure you want to clear all habit inputs, habit notes, and weight check-ins while keeping your habit setup intact?')) {
                 logs = {};
+                habitNotes = {};
                 weightLogs = [];
                 saveToStorage();
                 renderAll();
@@ -3133,6 +3708,7 @@
             if (confirm('Factory reset app? This will erase all custom logs and restore the original 10 default habits.')) {
                 localStorage.removeItem(STORAGE_KEY_HABITS);
                 localStorage.removeItem(STORAGE_KEY_LOGS);
+                localStorage.removeItem(STORAGE_KEY_HABIT_NOTES);
                 localStorage.removeItem(STORAGE_KEY_WEIGHTS);
                 localStorage.removeItem(STORAGE_KEY_PROFILE);
                 initApp();
@@ -3171,5 +3747,5 @@
             }
         });
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a26ce7999d335917',t:'MTc4NjAwNzM4Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
