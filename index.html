@@ -167,6 +167,155 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* =========================================================
+           AI INSIGHTS & COACH TAB
+           ========================================================= */
+        .insights-range-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+
+        .insight-reason {
+            display: flex;
+            gap: 0.9rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid var(--border-color);
+            align-items: flex-start;
+        }
+        .insight-reason:last-child { border-bottom: none; }
+
+        .insight-rank {
+            flex-shrink: 0;
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.85rem;
+            background-color: rgba(244, 63, 94, 0.12);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.25);
+        }
+        .insight-rank.good { background-color: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.25); }
+
+        .insight-reason-body { flex: 1; min-width: 0; }
+        .insight-reason-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.2rem; }
+        .insight-reason-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; }
+        .insight-reason-impact { font-size: 0.75rem; color: #fb7185; font-weight: 700; margin-left: 0.5rem; white-space: nowrap; }
+        .insight-reason-impact.good { color: #34d399; }
+
+        .insight-chip-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.45rem; }
+        .insight-chip {
+            font-size: 0.7rem; font-weight: 600;
+            padding: 0.15rem 0.55rem; border-radius: 9999px;
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .insight-chip.warn { color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); background-color: rgba(245, 158, 11, 0.08); }
+        .insight-chip.good { color: #34d399; border-color: rgba(16, 185, 129, 0.35); background-color: rgba(16, 185, 129, 0.08); }
+        .insight-chip.rose { color: #fb7185; border-color: rgba(244, 63, 94, 0.35); background-color: rgba(244, 63, 94, 0.08); }
+
+        /* Weekday miss histogram */
+        .weekday-bars { display: flex; align-items: flex-end; gap: 0.55rem; height: 130px; padding: 0.5rem 0 0 0; }
+        .weekday-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; height: 100%; justify-content: flex-end; }
+        .weekday-bar-wrap { width: 100%; max-width: 44px; flex: 1; display: flex; align-items: flex-end; }
+        .weekday-bar {
+            width: 100%;
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.85), rgba(59, 130, 246, 0.35));
+            border-radius: 6px 6px 2px 2px;
+            min-height: 3px;
+            transition: height 0.4s ease;
+        }
+        .weekday-bar.zero { background: rgba(51, 65, 85, 0.6); }
+        .weekday-bar.hot { background: linear-gradient(180deg, rgba(244, 63, 94, 0.9), rgba(244, 63, 94, 0.35)); }
+        .weekday-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
+        .weekday-count { font-size: 0.72rem; color: var(--text-secondary); font-weight: 700; }
+
+        /* Per-habit breakdown rows */
+        .habit-rate-row { padding: 0.7rem 0; border-bottom: 1px solid var(--border-color); }
+        .habit-rate-row:last-child { border-bottom: none; }
+        .habit-rate-top { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem; }
+        .habit-rate-name { font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+        .habit-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .habit-rate-pct { font-weight: 800; font-size: 0.85rem; white-space: nowrap; }
+        .habit-rate-pct.good { color: #34d399; }
+        .habit-rate-pct.mid { color: #fbbf24; }
+        .habit-rate-pct.bad { color: #fb7185; }
+        .habit-rate-bar-track { height: 8px; background-color: var(--bg-input); border-radius: 9999px; overflow: hidden; }
+        .habit-rate-bar { height: 100%; border-radius: 9999px; transition: width 0.5s ease; }
+        .habit-rate-sub { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; flex-wrap: wrap; }
+
+        .risk-badge {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-size: 0.68rem; font-weight: 700;
+            padding: 0.12rem 0.5rem; border-radius: 9999px;
+            background-color: rgba(244, 63, 94, 0.12); color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            white-space: nowrap;
+        }
+        .risk-badge.good { background-color: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+
+        /* Trend sparkline (last 14 days) */
+        .trend-bars { display: flex; align-items: flex-end; gap: 4px; height: 64px; }
+        .trend-bar { flex: 1; border-radius: 3px 3px 1px 1px; min-height: 2px; background-color: var(--bg-card-hover); }
+        .trend-bar.hit { background: linear-gradient(180deg, rgba(16, 185, 129, 0.9), rgba(16, 185, 129, 0.3)); }
+        .trend-bar.miss { background: linear-gradient(180deg, rgba(244, 63, 94, 0.85), rgba(244, 63, 94, 0.25)); }
+        .trend-bars-label { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); margin-top: 0.35rem; }
+
+        /* AI Coach */
+        .coach-box {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            min-height: 150px;
+            max-height: 320px;
+            overflow-y: auto;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            margin-bottom: 1rem;
+        }
+        .coach-box.thinking { display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+        .coach-badge {
+            font-size: 0.68rem; font-weight: 700;
+            padding: 0.18rem 0.6rem; border-radius: 9999px;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            background-color: rgba(139, 92, 246, 0.12);
+            color: #a78bfa;
+            white-space: nowrap;
+        }
+        .coach-badge.off {
+            border-color: var(--border-color);
+            background-color: var(--bg-card-hover);
+            color: var(--text-muted);
+        }
+        .coach-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+        .win-row {
+            display: flex; gap: 0.7rem; align-items: flex-start;
+            padding: 0.7rem 0; border-bottom: 1px solid var(--border-color);
+        }
+        .win-row:last-child { border-bottom: none; }
+        .win-icon { font-size: 1.05rem; line-height: 1.4; }
+        .win-text { font-size: 0.85rem; color: var(--text-primary); line-height: 1.45; }
+        .win-text small { color: var(--text-muted); display: block; margin-top: 0.15rem; }
+
+        .quote-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.06));
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+        }
+        .quote-text { font-size: 0.95rem; font-style: italic; line-height: 1.6; color: var(--text-primary); }
+        .quote-author { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-style: normal; }
+
+        .ai-spark { color: #a78bfa; }
+
+        @keyframes coachPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.45; }
+        }
+        .coach-thinking-anim { animation: coachPulse 1.2s ease-in-out infinite; }
+
         /* Buttons & Controls */
         .btn {
             display: inline-flex;
@@ -1034,6 +1183,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
                 Habits & Streaks
             </button>
+            <button class="tab-btn" onclick="switchTab('insights')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z"/></svg>
+                AI Insights & Coach
+            </button>
+
             <button class="tab-btn" onclick="switchTab('manage-habits')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 Modify Habits Anytime
@@ -1314,6 +1468,121 @@
             </div>
         </div>
 
+        <!-- ================= TAB 3.5: AI INSIGHTS & COACH ================= -->
+        <div id="tab-insights" class="tab-content">
+            <!-- Range selector -->
+            <div class="date-navigator">
+                <div class="date-title-box">
+                    <div>
+                        <div class="date-title">AI Insights &amp; Coach</div>
+                        <div class="date-subtitle" id="insights-context">Why you missed your score — plus momentum, patterns, and motivation.</div>
+                    </div>
+                </div>
+                <div class="insights-range-chips">
+                    <button class="chip" id="insights-chip-14" onclick="setInsightsRange(14)">14 days</button>
+                    <button class="chip active" id="insights-chip-28" onclick="setInsightsRange(28)">28 days</button>
+                    <button class="chip" id="insights-chip-60" onclick="setInsightsRange(60)">60 days</button>
+                    <button class="chip" id="insights-chip-90" onclick="setInsightsRange(90)">90 days</button>
+                </div>
+            </div>
+
+            <div id="insights-empty" style="display: none;" class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header"><div class="card-title">Not enough data yet 📭</div></div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                    The coach needs a few days of check-in history to find patterns. Log today's habits on the Daily Dashboard,
+                    or load the built-in sample data to explore the full experience.
+                </p>
+                <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-blue btn-sm" onclick="loadSampleData(); setTimeout(() => { renderAll(); switchTab('insights'); }, 400);">✨ Load 30-Day Sample Data</button>
+                    <button class="btn btn-secondary btn-sm" onclick="switchTab('dashboard')">Go to Daily Dashboard</button>
+                </div>
+            </div>
+
+            <!-- Report card: score summary -->
+            <div class="grid-4" style="margin-bottom: 1.5rem;">
+                <div class="kpi-card">
+                    <div class="kpi-label">Score (Completion Rate)</div>
+                    <div class="kpi-value" id="insights-score">--%</div>
+                    <div class="kpi-sub" id="insights-score-sub">vs previous window</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Missed Check-ins</div>
+                    <div class="kpi-value" id="insights-missed">--</div>
+                    <div class="kpi-sub" id="insights-missed-sub">in selected range</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Best Live Streak</div>
+                    <div class="kpi-value" id="insights-best-streak">--</div>
+                    <div class="kpi-sub" id="insights-best-streak-sub">habit with momentum</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Last 14 Days</div>
+                    <div class="trend-bars" id="insights-trend-bars" style="margin-top: 0.4rem;"></div>
+                    <div class="kpi-sub" id="insights-trend-sub" style="margin-top: 0.3rem;">green = score kept, red = missed</div>
+                </div>
+            </div>
+
+            <!-- Why you missed + patterns -->
+            <div class="grid-2" style="margin-bottom: 1.5rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🎯 Why you missed your score</div>
+                    </div>
+                    <div id="insights-reasons"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📅 Miss pattern by weekday</div>
+                    </div>
+                    <div class="weekday-bars" id="insights-weekday-bars"></div>
+                    <div id="insights-weekday-note" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.75rem; line-height: 1.5;"></div>
+                </div>
+            </div>
+
+            <!-- Habit breakdown + AI coach -->
+            <div class="grid-2" style="margin-bottom: 1.5rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🧩 Habit-by-habit breakdown</div>
+                    </div>
+                    <div id="insights-habit-rows"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="ai-spark">✦</span> AI Coach</div>
+                        <span class="coach-badge" id="insights-ai-status">checking…</span>
+                    </div>
+                    <div class="coach-box" id="insights-coach-box">Loading your coach…</div>
+                    <div class="coach-actions">
+                        <button class="btn btn-primary" id="btn-coach-analyze" onclick="askAICoach('analyze')">🔍 Why did I miss?</button>
+                        <button class="btn btn-secondary" id="btn-coach-motivate" onclick="askAICoach('motivate')">💪 Motivate me</button>
+                        <button class="btn btn-secondary btn-sm" onclick="switchTab('settings')">⚙️ AI Settings</button>
+                    </div>
+                    <p id="insights-ai-note" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.9rem; line-height: 1.5;"></p>
+                </div>
+            </div>
+
+            <!-- Wins + motivation -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🏆 Wins &amp; momentum</div>
+                    </div>
+                    <div id="insights-wins"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">💬 Today's motivation</div>
+                    </div>
+                    <div class="quote-box">
+                        <div class="quote-text" id="insights-quote">"</div>
+                        <div class="quote-author" id="insights-quote-author"></div>
+                    </div>
+                    <div id="insights-nudge" style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55;"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- ================= TAB 4: MANAGE HABITS (MODIFY ANYTIME) ================= -->
         <div id="tab-manage-habits" class="tab-content">
             <div class="card" style="margin-bottom: 1.5rem;">
@@ -1531,6 +1800,48 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- AI Insights & Coach Configuration -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <div class="card-title"><span class="ai-spark">✦</span> AI Coach (Insights Tab)</div>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.55;">
+                    The AI Coach explains <strong>why you missed your score</strong> and writes personal motivation from your real data.
+                    The Insights tab works even without AI; enabling it adds a GPT-style coach powered by Google Gemini.
+                </p>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Enable AI Coach</label>
+                        <select id="ai-setting-enabled" class="form-control">
+                            <option value="on">On — call Gemini API</option>
+                            <option value="off">Off — use built-in analytics only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gemini Model</label>
+                        <select id="ai-setting-model" class="form-control">
+                            <option value="gemini-2.5-flash">gemini-2.5-flash (fast, reliable)</option>
+                            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (cheapest)</option>
+                            <option value="gemini-3-flash">gemini-3-flash (newest flash)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gemini API Key</label>
+                    <input type="password" id="ai-setting-key" class="form-control" placeholder="Paste your Gemini API key here…" autocomplete="off">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5;">
+                        Get a free key at
+                        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color: #60a5fa;">aistudio.google.com/apikey</a>.
+                        The key is stored <strong>only in this browser's local storage</strong> — it is never synced to Firebase, never included in backups, and never committed to your repository.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="saveAiSettingsFromUI()">Save AI Settings</button>
+                    <button class="btn btn-secondary" onclick="testAiConnection()">🔌 Test Connection</button>
+                </div>
+                <p id="ai-settings-feedback" style="font-size: 0.8rem; margin-top: 0.75rem; color: var(--text-secondary);"></p>
             </div>
         </div>
 
@@ -2413,6 +2724,683 @@
             document.getElementById('setting-height').value = profile.heightCm;
             document.getElementById('setting-start-weight').value = profile.startWeight;
             document.getElementById('setting-target-weight').value = profile.targetWeight;
+            syncAiSettingsInputs();
+        }
+
+        /* =========================================================================
+           AI INSIGHTS & COACH
+           -------------------------------------------------------------------------
+           Two layers:
+           1. DETERMINISTIC INSIGHT ENGINE (always on, fully on-device): builds a
+              report card from the raw logs — completion score, missed check-ins,
+              weekday patterns, per-habit root-cause classification, wins.
+           2. OPTIONAL GEMINI COACH: sends a compact, aggregated digest to the
+              Google Gemini API using a user-supplied key. The key lives ONLY in
+              this browser's localStorage — it is never synced to Firebase,
+              never exported in backups, and never committed to the repo.
+           ========================================================================= */
+
+        const AI_SETTINGS_STORAGE_KEY = 'omnitrack_ai_settings';
+        const AI_COACH_CACHE_KEY = 'omnitrack_ai_coach_cache';
+
+        let insightsDays = 28;
+        let aiSettings = { enabled: true, apiKey: '', model: 'gemini-2.5-flash' };
+
+        const MOTIVATION_QUOTES = [
+            { q: 'You do not rise to the level of your goals. You fall to the level of your systems.', a: 'James Clear' },
+            { q: 'Small daily improvements are the key to staggering long-term results.', a: 'Robin Sharma' },
+            { q: 'Success is the sum of small efforts, repeated day in and day out.', a: 'Robert Collier' },
+            { q: 'Motivation gets you going, but habit keeps you growing.', a: 'John C. Maxwell' },
+            { q: 'The secret of getting ahead is getting started.', a: 'Mark Twain' },
+            { q: 'It does not matter how slowly you go, as long as you do not stop.', a: 'Confucius' },
+            { q: 'A year from now you may wish you had started today.', a: 'Karen Lamb' },
+            { q: 'Discipline is choosing between what you want now and what you want most.', a: 'Abraham Lincoln' },
+            { q: 'The man who moves a mountain begins by carrying away small stones.', a: 'Confucius' },
+            { q: 'You are what you repeatedly do. Excellence, then, is not an act, but a habit.', a: 'Will Durant' },
+            { q: 'Energy and persistence conquer all things.', a: 'Benjamin Franklin' },
+            { q: 'It always seems impossible until it is done.', a: 'Nelson Mandela' },
+            { q: 'Don\u2019t watch the clock; do what it does. Keep going.', a: 'Sam Levenson' },
+            { q: 'The best way out is always through.', a: 'Robert Frost' }
+        ];
+
+        function refreshAiSettings() {
+            const key = getScopedStorageKey(AI_SETTINGS_STORAGE_KEY, currentUser && currentUser.uid);
+            if (!key) { aiSettings = { enabled: true, apiKey: '', model: 'gemini-2.5-flash' }; return; }
+            try {
+                const parsed = JSON.parse(localStorage.getItem(key) || 'null');
+                if (parsed && typeof parsed === 'object') {
+                    aiSettings = {
+                        enabled: parsed.enabled !== false,
+                        apiKey: parsed.apiKey || '',
+                        model: parsed.model || 'gemini-2.5-flash'
+                    };
+                    return;
+                }
+            } catch (e) { /* corrupted entry — fall through to defaults */ }
+            aiSettings = { enabled: true, apiKey: '', model: 'gemini-2.5-flash' };
+        }
+        refreshAiSettings(); // initial state; re-refreshed whenever the tab renders
+
+        function saveAiSettingsFromUI() {
+            const enabledEl = document.getElementById('ai-setting-enabled');
+            const modelEl = document.getElementById('ai-setting-model');
+            const keyEl = document.getElementById('ai-setting-key');
+            const feedback = document.getElementById('ai-settings-feedback');
+            aiSettings.enabled = enabledEl.value !== 'off';
+            aiSettings.model = (modelEl.value || 'gemini-2.5-flash').trim();
+            aiSettings.apiKey = keyEl.value.trim();
+
+            const storageKey = getScopedStorageKey(AI_SETTINGS_STORAGE_KEY, currentUser && currentUser.uid);
+            if (storageKey) {
+                localStorage.setItem(storageKey, JSON.stringify(aiSettings));
+                feedback.textContent = aiSettings.apiKey
+                    ? '✅ AI Coach saved. Your key stays on this device only.'
+                    : '✅ Saved. Add a Gemini API key to unlock the AI Coach — the Insights tab works without it.';
+                feedback.style.color = '#34d399';
+            } else {
+                feedback.textContent = 'Sign in first — AI settings are stored per account on this device.';
+                feedback.style.color = '#fbbf24';
+            }
+        }
+
+        function syncAiSettingsInputs() {
+            refreshAiSettings();
+            const enabledEl = document.getElementById('ai-setting-enabled');
+            const modelEl = document.getElementById('ai-setting-model');
+            const keyEl = document.getElementById('ai-setting-key');
+            if (enabledEl) enabledEl.value = aiSettings.enabled ? 'on' : 'off';
+            if (modelEl) {
+                if (!Array.from(modelEl.options).some(o => o.value === aiSettings.model)) {
+                    const opt = document.createElement('option');
+                    opt.value = aiSettings.model;
+                    opt.textContent = aiSettings.model;
+                    modelEl.appendChild(opt);
+                }
+                modelEl.value = aiSettings.model;
+            }
+            if (keyEl && !keyEl.value) keyEl.value = aiSettings.apiKey;
+        }
+
+        async function testAiConnection() {
+            const feedback = document.getElementById('ai-settings-feedback');
+            const keyEl = document.getElementById('ai-setting-key');
+            const modelEl = document.getElementById('ai-setting-model');
+            const key = (keyEl.value || '').trim();
+            const model = (modelEl.value || 'gemini-2.5-flash').trim();
+            if (!key) { feedback.textContent = 'Paste your API key first.'; feedback.style.color = '#fbbf24'; return; }
+            feedback.textContent = 'Testing connection…'; feedback.style.color = 'var(--text-secondary)';
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+                    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Reply with exactly: OK' }] }], generationConfig: { maxOutputTokens: 8 } })
+                });
+                if (res.ok) {
+                    feedback.textContent = `✅ Connected! Model "${model}" answered with your key.`;
+                    feedback.style.color = '#34d399';
+                } else {
+                    feedback.textContent = friendlyAiError(res.status, model);
+                    feedback.style.color = '#fb7185';
+                }
+            } catch (err) {
+                feedback.textContent = 'Network error — check your connection (an ad-blocker or firewall may also block the request).';
+                feedback.style.color = '#fb7185';
+            }
+        }
+
+        function friendlyAiError(status, model) {
+            if (status === 400) return '⚠️ The API rejected the request. Check the key in Google AI Studio.';
+            if (status === 401) return '⚠️ Invalid API key — paste the exact key from aistudio.google.com/apikey.';
+            if (status === 403) return '⚠️ Key has no quota or permission (some models are paid-only — try gemini-2.5-flash-lite).';
+            if (status === 404) return `⚠️ Model "${model}" not found — pick another model in the dropdown.`;
+            if (status === 429) return '⚠️ Rate limit reached — try again in a minute.';
+            return `⚠️ Gemini returned error ${status}. Try again or pick another model.`;
+        }
+
+        function hashString(str) {
+            let h = 5381;
+            for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0;
+            return h.toString(36);
+        }
+
+        /* ---------- Report builder (deterministic, runs on-device) ---------- */
+
+        function classifyMissPattern(ctx) {
+            const { missed, rate, prevRate, nearMisses, noInput, missStreak, weekendMisses, weekdayMisses } = ctx;
+            if (missed === 0) return { label: 'Perfect — keep protecting it', kind: 'good', fix: 'Defend this streak: never skip two days in a row.' };
+            if (weekendMisses >= 4 && weekendMisses / missed >= 0.5) {
+                return { label: 'Weekend slip', kind: 'mid', fix: 'Anchor the check-in to a weekend ritual (right after breakfast or coffee) — free days are where structure leaks.' };
+            }
+            if (weekdayMisses[1] >= 3 && weekdayMisses[1] === Math.max(...weekdayMisses)) {
+                return { label: 'Monday dip — slow start to the week', kind: 'mid', fix: 'Pre-decide the Monday check-in time on Sunday evening, and make it the smallest version.' };
+            }
+            if (missStreak >= 3) {
+                return { label: `Cold streak: ${missStreak} scheduled days missed`, kind: 'high', fix: 'Restart smaller than you think — a 5-minute version still counts and ends the cold streak today.' };
+            }
+            if (missed > 0 && nearMisses / missed >= 0.5) {
+                return { label: 'Close, but below target', kind: 'mid', fix: 'You show up but miss the target — temporarily lower the bar so the win is realistic, then scale back up.' };
+            }
+            if (noInput === missed && missed >= 2) {
+                return { label: 'Often not logged at all', kind: 'mid', fix: 'Log the number even on bad days — invisible effort cannot be coached.' };
+            }
+            if (rate < 40) {
+                return { label: 'High miss rate — target may be too big right now', kind: 'high', fix: 'Shrink the target for 2 weeks, then scale back up once the habit sticks.' };
+            }
+            const delta = rate - prevRate;
+            if (delta <= -15) {
+                return { label: `Slipping: ${Math.abs(delta)} pts below the previous window`, kind: 'high', fix: 'Something changed recently — move the habit to a different time of day.' };
+            }
+            if (delta >= 15) {
+                return { label: 'Recovering — momentum building', kind: 'good', fix: 'Keep the streak alive: schedule tomorrow\u2019s check-in today.' };
+            }
+            return { label: 'Steady, with room to improve', kind: 'mid', fix: 'Stack it onto an existing routine to raise the hit rate.' };
+        }
+
+        function buildInsightReport() {
+            const today = getTodayDateStr();
+            const endDate = today;
+            const startDate = addDaysToDateStr(today, -(insightsDays - 1));
+            const prevStart = addDaysToDateStr(startDate, -insightsDays);
+            const prevEnd = addDaysToDateStr(startDate, -1);
+            const active = habits.filter(h => h.active);
+            const dates = getDateRange(startDate, endDate);
+
+            const perHabit = active.map(habit => {
+                const stats = getHabitRangeStats(habit, startDate, endDate);
+                const prevStats = getHabitRangeStats(habit, prevStart, prevEnd);
+                const scheduledDates = dates.filter(d => isHabitScheduledOnDate(habit, d));
+                const missedDates = scheduledDates.filter(d => !isHabitCompletedOnDate(habit, d));
+                let nearMisses = 0;
+                let noInput = 0;
+                const weekdayMisses = [0, 0, 0, 0, 0, 0, 0];
+                missedDates.forEach(d => {
+                    weekdayMisses[getDayOfWeek(d)]++;
+                    if (hasHabitInputOnDate(habit, d)) nearMisses++; else noInput++;
+                });
+                const missed = Math.max(0, stats.expected - stats.credited);
+                const rate = stats.expected ? Math.round((stats.credited / stats.expected) * 100) : 0;
+                const prevRate = prevStats.expected ? Math.round((prevStats.credited / prevStats.expected) * 100) : 0;
+                let missStreak = 0;
+                let streakCursor = endDate;
+                for (let walked = 0; walked < 400; walked++) {
+                    if (isHabitScheduledOnDate(habit, streakCursor)) {
+                        if (isHabitCompletedOnDate(habit, streakCursor)) break;
+                        missStreak++;
+                    }
+                    streakCursor = addDaysToDateStr(streakCursor, -1);
+                }
+                const weekendMisses = weekdayMisses[0] + weekdayMisses[6];
+                const classification = classifyMissPattern({
+                    missed, rate, prevRate, nearMisses, noInput, missStreak, weekendMisses, weekdayMisses
+                });
+                return {
+                    id: habit.id, name: habit.name, category: habit.category, color: habit.color || '#3b82f6',
+                    type: habit.type, expected: stats.expected, credited: stats.credited, successful: stats.successful,
+                    missed, nearMisses, noInput, rate, prevRate,
+                    currentStreak: calculateCurrentStreak(habit), bestStreak: calculateBestStreak(habit),
+                    weekdayMisses, missStreak, classification
+                };
+            });
+
+            const totalExpected = perHabit.reduce((s, h) => s + h.expected, 0);
+            const totalCredited = perHabit.reduce((s, h) => s + h.credited, 0);
+            const totalMissed = Math.max(0, totalExpected - totalCredited);
+            const rate = totalExpected ? Math.round((totalCredited / totalExpected) * 100) : 0;
+            const prevExpected = active.reduce((s, h) => s + getHabitRangeStats(h, prevStart, prevEnd).expected, 0);
+            const prevCredited = active.reduce((s, h) => s + getHabitRangeStats(h, prevStart, prevEnd).credited, 0);
+            const prevRate = prevExpected ? Math.round((prevCredited / prevExpected) * 100) : 0;
+
+            // Weekday aggregates (missed + scheduled counts)
+            const weekdayTotals = [0, 0, 0, 0, 0, 0, 0];
+            const weekdayScheduled = [0, 0, 0, 0, 0, 0, 0];
+            perHabit.forEach(h => h.weekdayMisses.forEach((v, i) => weekdayTotals[i] += v));
+            dates.forEach(d => active.forEach(h => {
+                if (isHabitScheduledOnDate(h, d)) weekdayScheduled[getDayOfWeek(d)]++;
+            }));
+            let worstWeekday = null;
+            weekdayTotals.forEach((v, i) => { if (v > 0 && (worstWeekday === null || v > weekdayTotals[worstWeekday])) worstWeekday = i; });
+            const weekendMissed = weekdayTotals[0] + weekdayTotals[6];
+            const weekendSched = weekdayScheduled[0] + weekdayScheduled[6];
+            const weekdayMissed = totalMissed - weekendMissed;
+            const weekdaySched = Math.max(1, weekdayScheduled[1] + weekdayScheduled[2] + weekdayScheduled[3] + weekdayScheduled[4] + weekdayScheduled[5]);
+
+            // Reasons: ranked by missed count
+            const reasons = perHabit
+                .filter(h => h.missed > 0)
+                .sort((a, b) => b.missed - a.missed || a.rate - b.rate)
+                .slice(0, 5)
+                .map(h => ({
+                    name: h.name, missed: h.missed, kind: h.classification.kind,
+                    label: h.classification.label, fix: h.classification.fix,
+                    evidence: buildEvidenceText(h),
+                    impact: totalMissed ? Math.round((h.missed / totalMissed) * 100) : 0
+                }));
+
+            // Wins
+            const winFacts = [];
+            let bestLive = null;
+            perHabit.forEach(h => { if (h.currentStreak > 0 && (!bestLive || h.currentStreak > bestLive.currentStreak)) bestLive = h; });
+            if (bestLive) winFacts.push({ icon: '🔥', text: `${bestLive.name}: ${bestLive.currentStreak}-day streak and counting`, sub: 'Protect it today — one check-in keeps it alive.' });
+            let mostImproved = null;
+            perHabit.forEach(h => { const d = h.rate - h.prevRate; if (!mostImproved || d > mostImproved.delta) mostImproved = { h, delta: d }; });
+            if (mostImproved && mostImproved.delta >= 5) {
+                winFacts.push({ icon: '📈', text: `${mostImproved.h.name} improved +${mostImproved.delta} pts vs the previous ${insightsDays} days`, sub: `From ${mostImproved.h.prevRate}% to ${mostImproved.h.rate}% — whatever changed, keep it.` });
+            }
+            perHabit.filter(h => h.rate === 100 && h.expected > 0).slice(0, 2).forEach(h => {
+                winFacts.push({ icon: '✅', text: `Perfect on "${h.name}" — ${h.credited}/${h.expected} check-ins`, sub: 'This is a genuine strength.' });
+            });
+            if (totalCredited > 0) winFacts.push({ icon: '🏅', text: `${totalCredited} successful check-ins in the last ${insightsDays} days`, sub: 'Every one of them was a small promise kept.' });
+            const weightWin = computeWeightWin();
+            if (weightWin) winFacts.push(weightWin);
+
+            // Last-14-day trend
+            const trend = [];
+            for (let i = 13; i >= 0; i--) {
+                const d = addDaysToDateStr(today, -i);
+                let sched = 0, done = 0;
+                active.forEach(h => {
+                    if (isHabitScheduledOnDate(h, d)) { sched++; if (isHabitCompletedOnDate(h, d)) done++; }
+                });
+                trend.push({ date: d, sched, done });
+            }
+
+            const hasAnyInput = dates.some(d => logs[d] && Object.keys(logs[d]).length > 0);
+
+            return {
+                startDate, endDate, habitCount: active.length, hasAnyInput,
+                totalExpected, totalCredited, totalMissed, rate, prevRate,
+                perHabit: perHabit.sort((a, b) => b.missed - a.missed || a.rate - b.rate),
+                reasons, winFacts, trend,
+                weekdayTotals, weekdayScheduled, worstWeekday,
+                weekendMissed, weekendSched, weekdayMissed, weekdaySched
+            };
+        }
+
+        function buildEvidenceText(h) {
+            const parts = [];
+            if (h.noInput > 0) parts.push(`never logged on ${h.noInput} day${h.noInput === 1 ? '' : 's'}`);
+            if (h.nearMisses > 0) parts.push(`logged below target ${h.nearMisses}×`);
+            if (h.missStreak >= 3) parts.push(`cold streak ${h.missStreak}`);
+            if (h.prevRate > 0 && h.rate - h.prevRate <= -15) parts.push(`down ${Math.abs(h.rate - h.prevRate)} pts vs previous window`);
+            return parts.join(' · ');
+        }
+
+        function computeWeightWin() {
+            if (!weightLogs || weightLogs.length < 3) return null;
+            const sorted = weightLogs.slice().sort((a, b) => a.date < b.date ? -1 : 1);
+            const latest = sorted[sorted.length - 1];
+            const cutoff = addDaysToDateStr(latest.date, -30);
+            const base = sorted.find(w => w.date >= cutoff) || sorted[0];
+            if (base === latest) return null;
+            const diff = latest.weight - base.weight;
+            if (Math.abs(diff) < 0.4) return null;
+            const goal = profile.targetWeight, start = profile.startWeight;
+            const downIsGood = (goal != null && start != null) ? goal < start : true;
+            const good = downIsGood ? diff < 0 : diff > 0;
+            const unit = profile.weightUnit || 'kg';
+            return {
+                icon: good ? '🎉' : '⚖️',
+                text: `Weight ${diff < 0 ? 'down' : 'up'} ${Math.abs(diff).toFixed(1)} ${unit} in the last 30 days`,
+                sub: good ? 'Your consistency is literally measurable. Keep logging.' : 'A data point, not a verdict — the trend is what matters.'
+            };
+        }
+
+        function getDailyQuote() {
+            const todayNum = parseInt(getTodayDateStr().replace(/-/g, ''), 10);
+            return MOTIVATION_QUOTES[(todayNum + 7) % MOTIVATION_QUOTES.length];
+        }
+
+        function getTrendLabel(dateStr) {
+            const parts = dateStr.split('-');
+            return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        /* ---------- Renderers ---------- */
+
+        function setInsightsRange(days) {
+            insightsDays = days;
+            ['14', '28', '60', '90'].forEach(d => {
+                const chip = document.getElementById(`insights-chip-${d}`);
+                if (chip) chip.classList.toggle('active', Number(d) === days);
+            });
+            renderInsightsTab();
+        }
+
+        function renderInsightsTab() {
+            refreshAiSettings();
+            const report = buildInsightReport();
+            const hasData = report.habitCount > 0 && report.totalExpected > 0 && report.hasAnyInput;
+
+            document.getElementById('insights-empty').style.display = hasData ? 'none' : 'block';
+            document.querySelectorAll('#tab-insights .grid-4, #tab-insights .grid-2').forEach(g => g.style.display = hasData ? '' : 'none');
+
+            document.getElementById('insights-context').textContent =
+                `Analysing ${formatDateReadable(report.startDate)} – ${formatDateReadable(report.endDate)} · ${report.habitCount} active habit${report.habitCount === 1 ? '' : 's'} · missing scheduled input counts as a miss.`;
+
+            document.getElementById('insights-score').textContent = `${report.rate}%`;
+            const delta = report.rate - report.prevRate;
+            document.getElementById('insights-score-sub').textContent =
+                delta > 0 ? `▲ +${delta} pts vs previous ${insightsDays} days`
+                : delta < 0 ? `▼ ${delta} pts vs previous ${insightsDays} days`
+                : `• same as previous ${insightsDays} days`;
+
+            document.getElementById('insights-missed').textContent = report.totalMissed;
+            const nearMissTotal = report.perHabit.reduce((s, h) => s + h.nearMisses, 0);
+            document.getElementById('insights-missed-sub').textContent =
+                `${nearMissTotal} were logged but below target`;
+
+            const bestLive = report.perHabit.filter(h => h.currentStreak > 0).sort((a, b) => b.currentStreak - a.currentStreak)[0];
+            document.getElementById('insights-best-streak').textContent = bestLive ? bestLive.currentStreak : '--';
+            document.getElementById('insights-best-streak-sub').textContent = bestLive ? `${bestLive.name}` : 'no live streak yet';
+
+            renderTrendBars(report);
+            renderReasons(report);
+            renderWeekdayBars(report);
+            renderHabitRows(report);
+            renderWins(report);
+
+            const quote = getDailyQuote();
+            document.getElementById('insights-quote').textContent = `\u201C${quote.q}\u201D`;
+            document.getElementById('insights-quote-author').textContent = `— ${quote.a}`;
+            document.getElementById('insights-nudge').textContent = buildNudge(report);
+
+            updateCoachStatus();
+            const box = document.getElementById('insights-coach-box');
+            if (!box.textContent || box.textContent === 'Loading your coach…') {
+                box.textContent = buildLocalCoachText('analyze');
+            }
+            box.classList.remove('thinking');
+        }
+
+        function renderTrendBars(report) {
+            const el = document.getElementById('insights-trend-bars');
+            const maxSched = Math.max(1, ...report.trend.map(t => t.sched));
+            const bars = report.trend.map(t => {
+                const pct = t.sched ? Math.round((t.done / t.sched) * 100) : 0;
+                let cls = '';
+                let background = '';
+                let height = 8;
+                if (t.sched > 0) {
+                    height = 18 + Math.round((pct / 100) * 82);
+                    if (pct === 100) cls = 'hit';
+                    else if (pct === 0) cls = 'miss';
+                    else background = 'background: linear-gradient(180deg, rgba(245,158,11,.85), rgba(245,158,11,.25));';
+                }
+                return `<div class="trend-bar ${cls}" style="height:${height}%;${background}" title="${getTrendLabel(t.date)}: ${t.done}/${t.sched}"></div>`;
+            }).join('');
+            el.innerHTML = `<div class="trend-bars" style="height:72px;">${bars}</div>
+                <div class="trend-bars-label"><span>${getTrendLabel(report.trend[0].date)}</span><span>${getTrendLabel(report.trend[report.trend.length - 1].date)}</span></div>`;
+        }
+
+        function renderReasons(report) {
+            const el = document.getElementById('insights-reasons');
+            if (!report.reasons.length) {
+                el.innerHTML = `<div class="insight-reason">
+                    <div class="insight-rank good">✓</div>
+                    <div class="insight-reason-body">
+                        <div class="insight-reason-title">No scheduled check-ins were missed in this window</div>
+                        <div class="insight-reason-text">Your score is intact. The strongest habit systems defend perfect windows — pick the streak closest to a personal best and push it.</div>
+                    </div>
+                </div>`;
+                return;
+            }
+            el.innerHTML = report.reasons.map((rsn, i) => `
+                <div class="insight-reason">
+                    <div class="insight-rank${rsn.kind === 'good' ? ' good' : ''}">${i + 1}</div>
+                    <div class="insight-reason-body">
+                        <div class="insight-reason-title">${escapeHtml(rsn.name)}
+                            <span class="insight-reason-impact${rsn.kind === 'good' ? ' good' : ''}">${rsn.impact}% of misses</span>
+                        </div>
+                        <div class="insight-reason-text">${escapeHtml(rsn.label)}${rsn.evidence ? ' — ' + escapeHtml(rsn.evidence) : ''}. ${escapeHtml(rsn.fix)}</div>
+                        <div class="insight-chip-row">
+                            <span class="insight-chip${rsn.kind === 'high' ? ' rose' : rsn.kind === 'good' ? ' good' : ' warn'}">${rsn.kind === 'high' ? '⚠ priority' : rsn.kind === 'good' ? '✦ on track' : '• watch'}</span>
+                            <span class="insight-chip">${rsn.missed} missed</span>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderWeekdayBars(report) {
+            const el = document.getElementById('insights-weekday-bars');
+            const max = Math.max(1, ...report.weekdayTotals);
+            el.innerHTML = report.weekdayTotals.map((count, i) => `
+                <div class="weekday-col">
+                    <div class="weekday-count">${count}</div>
+                    <div class="weekday-bar-wrap">
+                        <div class="weekday-bar${count === 0 ? ' zero' : count === max && count > 0 ? ' hot' : ''}" style="height:${count === 0 ? 4 : Math.round((count / max) * 100)}%"></div>
+                    </div>
+                    <div class="weekday-label">${WEEKDAY_SHORT_LABELS[i]}</div>
+                </div>`).join('');
+
+            const note = document.getElementById('insights-weekday-note');
+            const wkndPct = report.weekendSched ? Math.round((report.weekendMissed / report.weekendSched) * 100) : 0;
+            const wkdayPct = report.weekdaySched ? Math.round((report.weekdayMissed / report.weekdaySched) * 100) : 0;
+            let text = report.worstWeekday !== null
+                ? `Worst day: <strong>${WEEKDAY_SHORT_LABELS[report.worstWeekday]}</strong> (${report.weekdayTotals[report.worstWeekday]} misses). `
+                : 'No misses recorded. ';
+            if (report.weekendSched > 0) {
+                text += wkndPct > wkdayPct + 10
+                    ? `Weekends leak more than weekdays: ${wkndPct}% of weekend check-ins missed vs ${wkdayPct}% on weekdays — free time needs a fixed anchor.`
+                    : wkdayPct > wkndPct + 10
+                        ? `Weekdays leak more than weekends: ${wkdayPct}% vs ${wkndPct}% — your workday routine is crowding the habit out.`
+                        : `Weekend and weekday miss rates are similar (${wkndPct}% vs ${wkdayPct}%) — the friction is constant, so reduce the size of the habit.`;
+            }
+            note.innerHTML = text;
+        }
+
+        function renderHabitRows(report) {
+            const el = document.getElementById('insights-habit-rows');
+            if (!report.perHabit.length) {
+                el.innerHTML = '<p style="font-size:0.85rem;color:var(--text-secondary);">No active habits yet — create one in Modify Habits Anytime.</p>';
+                return;
+            }
+            el.innerHTML = report.perHabit.map(h => {
+                const pctClass = h.rate >= 80 ? 'good' : h.rate >= 50 ? 'mid' : 'bad';
+                const badge = h.missStreak >= 3
+                    ? ` <span class="risk-badge">⚠ cold ${h.missStreak} days</span>`
+                    : (h.rate === 100 && h.expected > 0 ? ' <span class="risk-badge good">✦ perfect</span>' : '');
+                return `<div class="habit-rate-row">
+                    <div class="habit-rate-top">
+                        <div class="habit-rate-name"><span class="habit-dot" style="background:${escapeHtml(h.color)}"></span>${escapeHtml(h.name)}${badge}</div>
+                        <div class="habit-rate-pct ${pctClass}">${h.rate}%</div>
+                    </div>
+                    <div class="habit-rate-bar-track"><div class="habit-rate-bar" style="width:${h.rate}%;background:${escapeHtml(h.color)}"></div></div>
+                    <div class="habit-rate-sub">
+                        <span>missed ${h.missed} · never logged ${h.noInput} · below target ${h.nearMisses}</span>
+                        <span>streak ${h.currentStreak} · best ${h.bestStreak}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderWins(report) {
+            const el = document.getElementById('insights-wins');
+            if (!report.winFacts.length) {
+                el.innerHTML = '<p style="font-size:0.85rem;color:var(--text-secondary);">Wins will appear as you log check-ins. A streak of one starts with a single tick.</p>';
+                return;
+            }
+            el.innerHTML = report.winFacts.map(w => `
+                <div class="win-row">
+                    <div class="win-icon">${w.icon}</div>
+                    <div class="win-text">${escapeHtml(w.text)}<small>${escapeHtml(w.sub)}</small></div>
+                </div>`).join('');
+        }
+
+        function buildNudge(report) {
+            if (!report.perHabit.length) return 'Log your first check-ins on the Daily Dashboard and the coach will start spotting patterns.';
+            const topMiss = report.perHabit[0];
+            if (topMiss && topMiss.missed > 0) {
+                const step = topMiss.type === 'check' ? 'tick the box' : 'log any value — even a small one';
+                return `🎯 Tonight\u2019s micro-win: "${topMiss.name}" — just ${step}. A tiny check-in beats a perfect plan.`;
+            }
+            const weakest = report.perHabit.slice().sort((a, b) => a.rate - b.rate)[0];
+            return `🎯 Every habit is green this window. Closest to a new record: "${weakest.name}" (${weakest.rate}%). Push it a little further.`;
+        }
+
+        /* ---------- Local coach (built-in mode — no network, no key) ---------- */
+
+        function buildLocalCoachText(mode) {
+            const r = buildInsightReport();
+            const lines = [];
+            if (mode === 'motivate') {
+                lines.push('💪 MOTIVATION — BUILT-IN MODE');
+                lines.push('');
+                if (r.totalCredited > 0) lines.push(`In the last ${insightsDays} days you kept ${r.totalCredited} promises to yourself. That is the only currency that matters.`);
+                r.winFacts.slice(0, 3).forEach(w => lines.push(`• ${w.text}`));
+                const topMiss = r.perHabit[0];
+                if (topMiss && topMiss.missed > 0) {
+                    lines.push(`Your biggest score leak is "${topMiss.name}" — today, do one tiny version of it and log it. One check-in ends the cold streak.`);
+                }
+                lines.push('');
+                lines.push('Connect a Gemini API key in Settings & Data → AI Coach for a fully personalised pep talk.');
+            } else {
+                lines.push('🔍 WHY YOU MISSED — BUILT-IN MODE');
+                lines.push('');
+                lines.push(`Score: ${r.rate}% (${r.totalCredited}/${r.totalExpected} check-ins) over the last ${insightsDays} days. Missed: ${r.totalMissed}.`);
+                if (r.reasons.length) {
+                    lines.push('');
+                    lines.push('Most likely causes:');
+                    r.reasons.slice(0, 3).forEach((rsn, i) => lines.push(`${i + 1}. ${rsn.name} — ${rsn.label}${rsn.evidence ? ' (' + rsn.evidence + ')' : ''}.`));
+                    lines.push('');
+                    lines.push('Fix for today: ' + r.reasons[0].fix);
+                } else {
+                    lines.push('');
+                    lines.push('No scheduled check-ins were missed in this window. Protect your streaks and push for a new personal best.');
+                }
+                if (r.worstWeekday !== null) lines.push(`Pattern note: most misses fall on ${WEEKDAY_SHORT_LABELS[r.worstWeekday]}.`);
+                lines.push('');
+                lines.push('Connect a Gemini API key in Settings & Data → AI Coach for deeper, personalised analysis.');
+            }
+            return lines.join('\n');
+        }
+
+        function renderLocalCoach(mode) {
+            const box = document.getElementById('insights-coach-box');
+            box.classList.remove('thinking');
+            box.textContent = buildLocalCoachText(mode);
+        }
+
+        /* ---------- Optional Gemini coach ---------- */
+
+        function updateCoachStatus() {
+            const badge = document.getElementById('insights-ai-status');
+            const note = document.getElementById('insights-ai-note');
+            if (aiSettings.enabled && aiSettings.apiKey) {
+                badge.textContent = `Gemini · ${aiSettings.model}`;
+                badge.classList.remove('off');
+                note.textContent = 'Privacy: only aggregated stats (rates, streaks, counts) are sent to Google\u2019s Gemini API with your own key. Habit notes are never shared.';
+            } else if (!aiSettings.enabled) {
+                badge.textContent = 'AI off';
+                badge.classList.add('off');
+                note.textContent = 'AI is disabled in Settings & Data → AI Coach. You are seeing built-in, on-device analytics instead.';
+            } else {
+                badge.textContent = 'No key set';
+                badge.classList.add('off');
+                note.textContent = 'Add a free Gemini API key in Settings & Data → AI Coach to unlock personalised analysis. Built-in analytics work without it.';
+            }
+        }
+
+        function buildCoachDigest() {
+            const r = buildInsightReport();
+            return {
+                windowDays: insightsDays,
+                scorePct: r.rate,
+                scorePrevWindowPct: r.prevRate,
+                missedCheckins: r.totalMissed,
+                expectedCheckins: r.totalExpected,
+                habits: r.perHabit.map(h => ({
+                    name: h.name, category: h.category, ratePct: h.rate,
+                    missed: h.missed, neverLogged: h.noInput, belowTarget: h.nearMisses,
+                    currentMissStreak: h.missStreak, currentStreak: h.currentStreak, bestStreak: h.bestStreak
+                })),
+                weekdayMisses: r.weekdayTotals,
+                worstWeekday: r.worstWeekday !== null ? WEEKDAY_SHORT_LABELS[r.worstWeekday] : null,
+                wins: r.winFacts.slice(0, 6).map(w => w.text)
+            };
+        }
+
+        function buildCoachPrompt(mode, digest) {
+            if (mode === 'motivate') {
+                return [
+                    'You are "Coach Omni", a warm, sharp, honest habit coach inside a habit-tracking app. Speak to the user directly in the second person.',
+                    'Below is a JSON digest of their real habit data. Write a short, energising motivational message (max 140 words, plain text only, no markdown symbols, no headings):',
+                    '- Celebrate 1-2 concrete wins with the actual numbers.',
+                    '- Acknowledge the struggle honestly, without sugar-coating.',
+                    '- Give ONE tiny action for today (5 minutes or less).',
+                    '- End with a one-line belief statement.',
+                    'Do not invent numbers. Do not mention JSON or the digest.',
+                    'DIGEST:\n' + JSON.stringify(digest)
+                ].join('\n');
+            }
+            return [
+                'You are "Coach Omni", a warm, sharp, honest habit coach inside a habit-tracking app. Speak to the user directly in the second person.',
+                'Below is a JSON digest of their real habit data for the selected window.',
+                'Write a plain-text analysis (max 200 words, no markdown symbols, no headings) covering:',
+                '1. WHY THEY MISSED: the 2-3 most likely root causes, named with the specific habits and numbers from the digest (weekday patterns, near-misses vs never-logged, cold streaks).',
+                '2. WHAT TO FIX: one concrete, small change per cause.',
+                '3. One line of encouragement.',
+                'Do not invent data beyond the digest. Do not mention JSON or the digest. Be specific, kind, and brief.',
+                'DIGEST:\n' + JSON.stringify(digest)
+            ].join('\n');
+        }
+
+        async function callGemini(prompt) {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(aiSettings.model)}:generateContent`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': aiSettings.apiKey },
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.7, maxOutputTokens: 700 }
+                })
+            });
+            if (!res.ok) {
+                const err = new Error(friendlyAiError(res.status, aiSettings.model));
+                err.friendly = friendlyAiError(res.status, aiSettings.model);
+                throw err;
+            }
+            const data = await res.json();
+            const text = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
+                .map(p => p.text || '').join('').trim();
+            if (!text) {
+                const err = new Error('The model returned an empty answer.');
+                err.friendly = 'The model returned an empty answer.';
+                throw err;
+            }
+            return text;
+        }
+
+        async function askAICoach(mode) {
+            const box = document.getElementById('insights-coach-box');
+            const hasKey = aiSettings.enabled && Boolean(aiSettings.apiKey);
+            if (!hasKey) {
+                renderLocalCoach(mode);
+                updateCoachStatus();
+                return;
+            }
+            const digest = buildCoachDigest();
+            const fingerprint = hashString(JSON.stringify(digest) + mode);
+            const todayKey = `${getTodayDateStr()}|${mode}|${aiSettings.model}`;
+            const cacheKey = getScopedStorageKey(AI_COACH_CACHE_KEY, currentUser && currentUser.uid) || AI_COACH_CACHE_KEY;
+            let cache = {};
+            try { cache = JSON.parse(localStorage.getItem(cacheKey) || '{}'); } catch (e) { cache = {}; }
+            if (cache && cache[todayKey] && cache[todayKey].fingerprint === fingerprint) {
+                box.classList.remove('thinking');
+                box.textContent = cache[todayKey].text;
+                return;
+            }
+            box.classList.add('thinking');
+            box.textContent = `✦ Your AI coach is reading your last ${insightsDays} days…`;
+            try {
+                const text = await callGemini(buildCoachPrompt(mode, digest));
+                box.classList.remove('thinking');
+                box.textContent = text;
+                cache[todayKey] = { fingerprint, text };
+                try { localStorage.setItem(cacheKey, JSON.stringify(cache)); } catch (e) { /* storage full — ignore */ }
+            } catch (err) {
+                box.classList.remove('thinking');
+                box.textContent = (err && err.friendly ? err.friendly : '⚠️ Could not reach the AI coach. Check your connection and settings.') +
+                    '\n\nFalling back to built-in analytics:\n\n' + buildLocalCoachText(mode);
+            }
         }
 
         /* =========================================================================
@@ -2432,6 +3420,8 @@
                 renderWeightTab();
             } else if (tabId === 'habits-analytics') {
                 renderHabitsAnalyticsTab();
+            } else if (tabId === 'insights') {
+                renderInsightsTab();
             } else if (tabId === 'manage-habits') {
                 renderManageHabitsTab();
             } else if (tabId === 'sharing') {
@@ -4123,6 +5113,7 @@
             renderDashboard();
             updateNavStats();
             if (document.getElementById('tab-habits-analytics').classList.contains('active')) renderHabitsAnalyticsTab();
+            if (document.getElementById('tab-insights').classList.contains('active')) renderInsightsTab();
             if (document.getElementById('tab-manage-habits').classList.contains('active')) renderManageHabitsTab();
             if (document.getElementById('tab-weight').classList.contains('active')) renderWeightTab();
         }
@@ -4303,5 +5294,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a26d83328f47343c',t:'MTc4NjAxMzc2MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a26d83328f47343c',t:'MTc4NjAxMzc2MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2b2861de93fa9b7',t:'MTc4NjczNzM5Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
