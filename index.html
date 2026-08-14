@@ -1822,10 +1822,16 @@
                     <div class="form-group">
                         <label class="form-label">Gemini Model</label>
                         <select id="ai-setting-model" class="form-control">
-                            <option value="gemini-2.5-flash">gemini-2.5-flash (fast, reliable)</option>
-                            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (cheapest)</option>
-                            <option value="gemini-3-flash">gemini-3-flash (newest flash)</option>
+                            <option value="gemini-3.7-flash">gemini-3.7-flash (latest stable)</option>
+                            <option value="gemini-3.6-flash">gemini-3.6-flash (previous gen)</option>
+                            <option value="gemini-3.5-flash">gemini-3.5-flash (legacy stable)</option>
+                            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (cheapest)</option>
+                            <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (cost-effective)</option>
+                            <option value="gemini-flash-latest">gemini-flash-latest (auto-tracks newest)</option>
                         </select>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5;">
+                            Not sure which works with your key? Click <strong>Scan Available Models</strong> — it asks Google which models your key can actually use and selects a working one.
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -1840,6 +1846,7 @@
                 <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="saveAiSettingsFromUI()">Save AI Settings</button>
                     <button class="btn btn-secondary" onclick="testAiConnection()">🔌 Test Connection</button>
+                    <button class="btn btn-blue" onclick="scanAvailableModels()">🔍 Scan Available Models</button>
                 </div>
                 <p id="ai-settings-feedback" style="font-size: 0.8rem; margin-top: 0.75rem; color: var(--text-secondary);"></p>
             </div>
@@ -2742,9 +2749,16 @@
 
         const AI_SETTINGS_STORAGE_KEY = 'omnitrack_ai_settings';
         const AI_COACH_CACHE_KEY = 'omnitrack_ai_coach_cache';
+        const AI_MODELS_CACHE_KEY = 'omnitrack_ai_models_cache';
+
+        const AI_DEFAULT_MODEL = 'gemini-3.7-flash';
+        // Models Google has retired/renamed since this app shipped. If a user has one
+        // of these stored, we auto-migrate them to the current default so the coach
+        // keeps working instead of 404-ing.
+        const AI_RETIRED_MODELS = { 'gemini-2.5-flash': true, 'gemini-2.5-flash-lite': true, 'gemini-3-flash': true };
 
         let insightsDays = 28;
-        let aiSettings = { enabled: true, apiKey: '', model: 'gemini-2.5-flash' };
+        let aiSettings = { enabled: true, apiKey: '', model: AI_DEFAULT_MODEL };
 
         const MOTIVATION_QUOTES = [
             { q: 'You do not rise to the level of your goals. You fall to the level of your systems.', a: 'James Clear' },
@@ -2765,19 +2779,27 @@
 
         function refreshAiSettings() {
             const key = getScopedStorageKey(AI_SETTINGS_STORAGE_KEY, currentUser && currentUser.uid);
-            if (!key) { aiSettings = { enabled: true, apiKey: '', model: 'gemini-2.5-flash' }; return; }
+            if (!key) { aiSettings = { enabled: true, apiKey: '', model: AI_DEFAULT_MODEL }; return; }
             try {
                 const parsed = JSON.parse(localStorage.getItem(key) || 'null');
                 if (parsed && typeof parsed === 'object') {
+                    let model = parsed.model || AI_DEFAULT_MODEL;
+                    if (AI_RETIRED_MODELS[model]) {
+                        model = AI_DEFAULT_MODEL; // Google retired this model — migrate forward
+                    }
                     aiSettings = {
                         enabled: parsed.enabled !== false,
                         apiKey: parsed.apiKey || '',
-                        model: parsed.model || 'gemini-2.5-flash'
+                        model: model
                     };
+                    if (model !== parsed.model) {
+                        // Persist the migration so it happens exactly once.
+                        localStorage.setItem(key, JSON.stringify(aiSettings));
+                    }
                     return;
                 }
             } catch (e) { /* corrupted entry — fall through to defaults */ }
-            aiSettings = { enabled: true, apiKey: '', model: 'gemini-2.5-flash' };
+            aiSettings = { enabled: true, apiKey: '', model: AI_DEFAULT_MODEL };
         }
         refreshAiSettings(); // initial state; re-refreshed whenever the tab renders
 
@@ -2787,7 +2809,7 @@
             const keyEl = document.getElementById('ai-setting-key');
             const feedback = document.getElementById('ai-settings-feedback');
             aiSettings.enabled = enabledEl.value !== 'off';
-            aiSettings.model = (modelEl.value || 'gemini-2.5-flash').trim();
+            aiSettings.model = (modelEl.value || AI_DEFAULT_MODEL).trim();
             aiSettings.apiKey = keyEl.value.trim();
 
             const storageKey = getScopedStorageKey(AI_SETTINGS_STORAGE_KEY, currentUser && currentUser.uid);
@@ -2826,7 +2848,7 @@
             const keyEl = document.getElementById('ai-setting-key');
             const modelEl = document.getElementById('ai-setting-model');
             const key = (keyEl.value || '').trim();
-            const model = (modelEl.value || 'gemini-2.5-flash').trim();
+            const model = (modelEl.value || AI_DEFAULT_MODEL).trim();
             if (!key) { feedback.textContent = 'Paste your API key first.'; feedback.style.color = '#fbbf24'; return; }
             feedback.textContent = 'Testing connection…'; feedback.style.color = 'var(--text-secondary)';
             try {
@@ -2851,16 +2873,88 @@
         function friendlyAiError(status, model) {
             if (status === 400) return '⚠️ The API rejected the request. Check the key in Google AI Studio.';
             if (status === 401) return '⚠️ Invalid API key — paste the exact key from aistudio.google.com/apikey.';
-            if (status === 403) return '⚠️ Key has no quota or permission (some models are paid-only — try gemini-2.5-flash-lite).';
-            if (status === 404) return `⚠️ Model "${model}" not found — pick another model in the dropdown.`;
+            if (status === 403) return '⚠️ Key has no quota or permission for this model — click "Scan Available Models" to pick one your key can use.';
+            if (status === 404) return `⚠️ Model "${model}" isn't available for your key (Google retired or renamed it). Click "Scan Available Models" in Settings & Data → AI Coach — it lists exactly what your key can use.`;
             if (status === 429) return '⚠️ Rate limit reached — try again in a minute.';
-            return `⚠️ Gemini returned error ${status}. Try again or pick another model.`;
+            return `⚠️ Gemini returned error ${status}. Try again or click "Scan Available Models".`;
         }
 
         function hashString(str) {
             let h = 5381;
             for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0;
             return h.toString(36);
+        }
+
+        /* Scans the live Gemini model list for THIS key and repopulates the dropdown,
+           so model retirements can never silently break the coach again. */
+        async function scanAvailableModels() {
+            const feedback = document.getElementById('ai-settings-feedback');
+            const keyEl = document.getElementById('ai-setting-key');
+            const modelEl = document.getElementById('ai-setting-model');
+            const key = (keyEl.value || '').trim();
+            if (!key) { feedback.textContent = 'Paste your API key first, then scan.'; feedback.style.color = '#fbbf24'; return; }
+
+            const cacheKey = getScopedStorageKey(AI_MODELS_CACHE_KEY, currentUser && currentUser.uid) || AI_MODELS_CACHE_KEY;
+            const today = getTodayDateStr();
+            const keyHash = hashString(key);
+            try {
+                let cached = null;
+                try { cached = JSON.parse(localStorage.getItem(cacheKey) || 'null'); } catch (e) { cached = null; }
+                if (cached && cached.keyHash === keyHash && cached.date === today && Array.isArray(cached.models) && cached.models.length) {
+                    applyScannedModels(cached.models, modelEl, feedback, true);
+                    return;
+                }
+
+                feedback.textContent = 'Scanning the models your key can use…';
+                feedback.style.color = 'var(--text-secondary)';
+                const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000', {
+                    headers: { 'x-goog-api-key': key }
+                });
+                if (!res.ok) {
+                    feedback.textContent = friendlyAiError(res.status, '(model list)');
+                    feedback.style.color = '#fb7185';
+                    return;
+                }
+                const data = await res.json();
+                const models = (data.models || [])
+                    .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+                    .map(m => String(m.name || '').replace(/^models\//, ''))
+                    .filter(name => /^gemini-/.test(name))
+                    .filter(name => !/(image|embedding|tts|translate|live-|computer|research|antigravity|robotics|clip|lyria|deep-)/.test(name))
+                    .sort();
+                if (!models.length) {
+                    feedback.textContent = 'Google returned no usable text models for this key. Check your key and its tier in Google AI Studio.';
+                    feedback.style.color = '#fb7185';
+                    return;
+                }
+                try { localStorage.setItem(cacheKey, JSON.stringify({ keyHash, date: today, models })); } catch (e) { /* ignore */ }
+                applyScannedModels(models, modelEl, feedback, false);
+            } catch (err) {
+                feedback.textContent = 'Network error while scanning — check your connection (an ad-blocker may also block the request).';
+                feedback.style.color = '#fb7185';
+            }
+        }
+
+        function applyScannedModels(models, modelEl, feedback, fromCache) {
+            const previous = aiSettings.model;
+            modelEl.innerHTML = models.map(name => `<option value="${name}">${name}</option>`).join('');
+            const picked = pickBestScannedModel(models, previous);
+            modelEl.value = picked;
+            aiSettings.model = picked;
+            saveAiSettingsFromUI();
+            const switched = picked !== previous;
+            feedback.textContent = `✅ Found ${models.length} model${models.length === 1 ? '' : 's'} your key can use${fromCache ? ' (cached from earlier today)' : ''}. Selected: ${picked}.` +
+                (switched ? ' Your previous choice is not available for this key.' : '');
+            feedback.style.color = '#34d399';
+        }
+
+        function pickBestScannedModel(models, current) {
+            if (models.includes(current)) return current;
+            const lite = models.find(m => m.includes('flash-lite'));   // cheapest first
+            if (lite) return lite;
+            const flash = models.find(m => m.includes('flash'));       // then any flash
+            if (flash) return flash;
+            return models[0];
         }
 
         /* ---------- Report builder (deterministic, runs on-device) ---------- */
@@ -5294,5 +5388,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a26d83328f47343c',t:'MTc4NjAxMzc2MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2b2861de93fa9b7',t:'MTc4NjczNzM5Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a26d83328f47343c',t:'MTc4NjAxMzc2MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2b2a29d9ca83f9a',t:'MTc4NjczODU2NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
