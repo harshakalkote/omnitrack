@@ -3444,7 +3444,8 @@
                 headers: { 'Content-Type': 'application/json', 'x-goog-api-key': aiSettings.apiKey },
                 body: JSON.stringify({
                     contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                    generationConfig: { temperature: 0.7, maxOutputTokens: 700 }
+                    generationConfig: { temperature: 0.7, maxOutputTokens: 5000, thinkingConfig: { thinkingLevel: 'minimal' }}
+                    
                 })
             });
             if (!res.ok) {
